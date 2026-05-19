@@ -2,7 +2,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
+
 import {
   collection,
   getDocs,
@@ -14,9 +14,17 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 
+import { useNavigate } from "react-router-dom";
+
 const Dashboard = () => {
-const navigate = useNavigate();
-  const [data, setData] = useState([]);
+
+  const navigate = useNavigate();
+
+  const [maintenanceData, setMaintenanceData] =
+    useState([]);
+
+  const [expenseData, setExpenseData] =
+    useState([]);
 
   const [search, setSearch] =
     useState("");
@@ -51,25 +59,38 @@ const navigate = useNavigate();
     setThisMonthPaidFlats,
   ] = useState(0);
 
+  const totalFlats = 10;
+
   const fetchData = async () => {
 
     try {
 
-      const querySnapshot =
+      // Maintenance Collection
+      const maintenanceSnapshot =
         await getDocs(
           collection(db, "flat_amounts")
         );
 
+      // Expense Collection
+      const expenseSnapshot =
+        await getDocs(
+          collection(db, "expenses")
+        );
+
+      const maintenanceTemp = [];
+
+      const expenseTemp = [];
+
       let maintenanceTotal = 0;
 
-      let expensesTotal = 0;
+      let expenseTotal = 0;
 
       let currentMonthMaintenance = 0;
 
-      let currentMonthExpenses = 0;
+      let currentMonthExpense = 0;
 
       let currentMonthFlatCount = 0;
-        let Description = "";
+
       const currentDate = new Date();
 
       const currentMonth =
@@ -78,30 +99,22 @@ const navigate = useNavigate();
       const currentYear =
         currentDate.getFullYear();
 
-      const tempData = [];
-
-      querySnapshot.forEach((doc) => {
+      // Maintenance Data
+      maintenanceSnapshot.forEach((doc) => {
 
         const item = {
           id: doc.id,
           ...doc.data(),
         };
 
-        tempData.push(item);
+        maintenanceTemp.push(item);
 
-        const maintenance =
+        const amount =
           Number(
             item.maintenanceAmount
           ) || 0;
 
-        const expenses =
-          Number(
-            item.expensesAmount
-          ) || 0;
-
-        maintenanceTotal += maintenance;
-
-        expensesTotal += expenses;
+        maintenanceTotal += amount;
 
         if (item.billDate) {
 
@@ -120,28 +133,70 @@ const navigate = useNavigate();
           ) {
 
             currentMonthMaintenance +=
-              maintenance;
-
-            currentMonthExpenses +=
-              expenses;
+              amount;
 
             currentMonthFlatCount++;
           }
         }
       });
 
-      setData(tempData);
+      // Expense Data
+      expenseSnapshot.forEach((doc) => {
+
+        const item = {
+          id: doc.id,
+          ...doc.data(),
+        };
+
+        expenseTemp.push(item);
+
+        const amount =
+          Number(
+            item.maintenanceAmount
+          ) || 0;
+
+        expenseTotal += amount;
+
+        if (item.billDate) {
+
+          const billDate =
+            new Date(item.billDate);
+
+          const billMonth =
+            billDate.getMonth() + 1;
+
+          const billYear =
+            billDate.getFullYear();
+
+          if (
+            billMonth === currentMonth &&
+            billYear === currentYear
+          ) {
+
+            currentMonthExpense +=
+              amount;
+          }
+        }
+      });
+
+      setMaintenanceData(
+        maintenanceTemp
+      );
+
+      setExpenseData(
+        expenseTemp
+      );
 
       setTotalMaintenance(
         maintenanceTotal
       );
 
       setTotalExpenses(
-        expensesTotal
+        expenseTotal
       );
 
       setRemainingBalance(
-        maintenanceTotal - expensesTotal
+        maintenanceTotal - expenseTotal
       );
 
       setMonthMaintenance(
@@ -149,7 +204,7 @@ const navigate = useNavigate();
       );
 
       setMonthExpenses(
-        currentMonthExpenses
+        currentMonthExpense
       );
 
       setThisMonthPaidFlats(
@@ -168,25 +223,31 @@ const navigate = useNavigate();
 
   }, []);
 
-  const filteredData = data.filter(
-    (item) =>
-      item.ownerName
-        ?.toLowerCase()
-        .includes(
-          search.toLowerCase()
-        ) ||
-      item.flatNumber
-        ?.toLowerCase()
-        .includes(
-          search.toLowerCase()
-        )
-  );
+  const filteredData =
+    maintenanceData.filter(
+      (item) =>
+        item.ownerName
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          ) ||
+        item.flatNumber
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+    );
 
   return (
     <div className="container mt-4">
 
+      {/* Cards */}
+
       <div className="row g-4">
-<div className="col-md-4">
+
+        {/* Paid Flats */}
+
+        <div className="col-md-4">
 
           <div className="card border-0 shadow-lg rounded-4 p-4 bg-dark text-white">
 
@@ -199,18 +260,35 @@ const navigate = useNavigate();
                 </h6>
 
                 <h2 className="fw-bold">
-                10 out of  {thisMonthPaidFlats}
+                  {thisMonthPaidFlats}
+                  {" "}
+                  /
+                  {" "}
+                  {totalFlats}
                 </h2>
 
               </div>
 
-              <FaArrowRight size={35} />
+              <FaArrowRight
+  size={35}
+  style={{
+    cursor: "pointer",
+  }}
+  onClick={() =>
+    navigate(
+      "/this-month-paid-flats"
+    )
+  }
+/>
 
             </div>
 
           </div>
 
         </div>
+
+        {/* Total Received */}
+
         <div className="col-md-4">
 
           <div className="card border-0 shadow-lg rounded-4 p-4 bg-success text-white">
@@ -220,22 +298,37 @@ const navigate = useNavigate();
               <div>
 
                 <h6 className="fw-light">
-                  Total Recieved Amount
+                  Total Received Amount
                 </h6>
 
                 <h2 className="fw-bold">
-                  ₹{totalMaintenance}
+                  ₹
+                  {
+                    totalMaintenance
+                  }
                 </h2>
 
               </div>
 
-              <FaArrowRight size={35} />
+             <FaArrowRight
+  size={35}
+  style={{
+    cursor: "pointer",
+  }}
+  onClick={() =>
+    navigate(
+      "/total-received"
+    )
+  }
+/>
 
             </div>
 
           </div>
 
         </div>
+
+        {/* Total Expense */}
 
         <div className="col-md-4">
 
@@ -250,18 +343,33 @@ const navigate = useNavigate();
                 </h6>
 
                 <h2 className="fw-bold">
-                  ₹{totalExpenses}
+                  ₹
+                  {
+                    totalExpenses
+                  }
                 </h2>
 
               </div>
 
-              <FaArrowRight size={35} />
+             <FaArrowRight
+  size={35}
+  style={{
+    cursor: "pointer",
+  }}
+  onClick={() =>
+    navigate(
+      "/total-expenses"
+    )
+  }
+/>
 
             </div>
 
           </div>
 
         </div>
+
+        {/* Remaining */}
 
         <div className="col-md-4">
 
@@ -276,18 +384,25 @@ const navigate = useNavigate();
                 </h6>
 
                 <h2 className="fw-bold">
-                  ₹{remainingBalance}
+                  ₹
+                  {
+                    remainingBalance
+                  }
                 </h2>
 
               </div>
 
-              <FaArrowRight size={35} />
+              <FaArrowRight
+                size={35}
+              />
 
             </div>
 
           </div>
 
         </div>
+
+        {/* Month Maintenance */}
 
         <div className="col-md-4">
 
@@ -298,32 +413,37 @@ const navigate = useNavigate();
               <div>
 
                 <h6 className="fw-light">
-                  This Month Maintenance
+                  This Month Received Amount
                 </h6>
 
                 <h2 className="fw-bold">
-                  ₹{monthMaintenance}
+                  ₹
+                  {
+                    monthMaintenance
+                  }
                 </h2>
 
               </div>
 
-             <FaArrowRight
-  size={35}
-  style={{
-    cursor: "pointer",
-  }}
-  onClick={() =>
-    navigate(
-      "/this-month-maintenance"
-    )
-  }
-/>
+              <FaArrowRight
+                size={35}
+                style={{
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  navigate(
+                    "/this-month-maintenance"
+                  )
+                }
+              />
 
             </div>
 
           </div>
 
         </div>
+
+        {/* Month Expense */}
 
         <div className="col-md-4">
 
@@ -338,12 +458,17 @@ const navigate = useNavigate();
                 </h6>
 
                 <h2 className="fw-bold">
-                  ₹{monthExpenses}
+                  ₹
+                  {
+                    monthExpenses
+                  }
                 </h2>
 
               </div>
 
-              <FaArrowRight size={35} />
+              <FaArrowRight
+                size={35}
+              />
 
             </div>
 
@@ -351,28 +476,28 @@ const navigate = useNavigate();
 
         </div>
 
-        
-
       </div>
+
+      {/* Maintenance Table */}
 
       <div className="card shadow-lg border-0 rounded-4 p-4 mt-5">
 
-        <div className="row mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-4">
 
-          <div className="col-md-4">
+          <h4>
+            Maintenance Details
+          </h4>
 
-            <input
-              type="text"
-              className="form-control rounded-3"
-              placeholder="Search Flat / Owner"
-              onChange={(e) =>
-                setSearch(
-                  e.target.value
-                )
-              }
-            />
-
-          </div>
+          <input
+            type="text"
+            className="form-control w-25"
+            placeholder="Search"
+            onChange={(e) =>
+              setSearch(
+                e.target.value
+              )
+            }
+          />
 
         </div>
 
@@ -388,8 +513,6 @@ const navigate = useNavigate();
                 <th>Owner Name</th>
                 <th>Bill Date</th>
                 <th>Maintenance</th>
-                <th>Expenses</th>
-                <th>Description</th>
               </tr>
 
             </thead>
@@ -400,7 +523,10 @@ const navigate = useNavigate();
                 filteredData.length > 0 ? (
 
                   filteredData.map(
-                    (item, index) => (
+                    (
+                      item,
+                      index
+                    ) => (
 
                       <tr key={item.id}>
 
@@ -409,34 +535,27 @@ const navigate = useNavigate();
                         </td>
 
                         <td>
-                          {item.flatNumber}
+                          {
+                            item.flatNumber
+                          }
                         </td>
 
                         <td>
-                          {item.ownerName}
+                          {
+                            item.ownerName
+                          }
                         </td>
 
                         <td>
-                          {item.billDate}
+                          {
+                            item.billDate
+                          }
                         </td>
 
                         <td className="text-success fw-bold">
                           ₹
                           {
                             item.maintenanceAmount
-                          }
-                        </td>
-
-                        <td className="text-danger fw-bold">
-                          ₹
-                          {
-                            item.expensesAmount
-                          }
-                        </td>
-                            <td className="text-danger fw-bold">
-                          
-                          {
-                            item.Description
                           }
                         </td>
 
@@ -448,10 +567,95 @@ const navigate = useNavigate();
                   <tr>
 
                     <td
-                      colSpan="6"
-                      className="text-center text-danger fw-bold"
+                      colSpan="5"
+                      className="text-center text-danger"
                     >
                       No Data Found
+                    </td>
+
+                  </tr>
+                )
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+      {/* Expense Table */}
+
+      <div className="card shadow-lg border-0 rounded-4 p-4 mt-5">
+
+        <h4 className="mb-4">
+          Expense Details
+        </h4>
+
+        <div className="table-responsive">
+
+          <table className="table table-bordered table-hover">
+
+            <thead className="table-dark">
+
+              <tr>
+                <th>S.No</th>
+                <th>Date</th>
+                <th>Expense Title</th>
+                <th>Amount</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {
+                expenseData.length > 0 ? (
+
+                  expenseData.map(
+                    (
+                      item,
+                      index
+                    ) => (
+
+                      <tr key={item.id}>
+
+                        <td>
+                          {index + 1}
+                        </td>
+
+                        <td>
+                          {
+                            item.billDate
+                          }
+                        </td>
+
+                        <td>
+                          {
+                            item.title
+                          }
+                        </td>
+
+                        <td className="text-danger fw-bold">
+                          ₹
+                          {
+                            item.maintenanceAmount
+                          }
+                        </td>
+
+                      </tr>
+                    )
+                  )
+                ) : (
+
+                  <tr>
+
+                    <td
+                      colSpan="4"
+                      className="text-center text-danger"
+                    >
+                      No Expense Data
                     </td>
 
                   </tr>

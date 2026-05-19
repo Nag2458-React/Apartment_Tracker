@@ -63,7 +63,7 @@ const Navbar = ({
 
                 <Link
                   className="nav-link"
-                  to="/add-amounts"
+                  to="/add-expense"
                 >
                   Add Expense
                 </Link>

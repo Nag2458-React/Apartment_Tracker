@@ -366,8 +366,8 @@ const AddAmounts = () => {
                 <th>Owner Name</th>
                 <th>Bill Date</th>
                 <th>Maintenance</th>
-                <th>Expenses</th>
-                <th>Description</th>
+                
+                
                 <th>Actions</th>
               </tr>
 
@@ -404,14 +404,8 @@ const AddAmounts = () => {
                           {item.maintenanceAmount}
                         </td>
 
-                        <td>
-                          ₹
-                          {item.expensesAmount}
-                        </td>
-                       <td>
-                          
-                          {item.Description}
-                        </td>
+                       
+                      
                         <td>
 
                           <button
