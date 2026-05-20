@@ -24,6 +24,7 @@ import ThisMonthPaidFlats from "./Components/ThisMonthPaidFlats";
 import TotalReceived from "./Components/TotalReceived";
 import TotalExpenses from "./Components/TotalExpenses";
 import ThisMonthExpenses from "./Components/ThisMonthExpenses";
+import { Footer } from "./Components/Footer";
 const App = () => {
 
   const [userRole, setUserRole] = useState(
@@ -100,7 +101,7 @@ const App = () => {
         />
 
       </Routes>
-
+<Footer />
     </BrowserRouter>
   );
 };

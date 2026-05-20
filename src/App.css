@@ -55,3 +55,9 @@ thead.table-dark1 th {
 .row.g-4.dash .card {
     border-radius: 16% !important;
 }
+.footer.text-center {
+    background: #393939;
+    padding: 8px;
+    color: #fff;
+    font-size: 12px;
+}
