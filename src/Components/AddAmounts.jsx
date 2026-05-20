@@ -358,7 +358,7 @@ const AddAmounts = () => {
 
           <table className="table table-bordered table-striped">
 
-            <thead className="table-dark">
+            <thead className="table-dark1">
 
               <tr>
                 <th>S.No</th>
