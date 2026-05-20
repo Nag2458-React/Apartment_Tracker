@@ -6,6 +6,7 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  useLocation,
 } from "react-router-dom";
 
 import {
@@ -25,17 +26,29 @@ import TotalReceived from "./Components/TotalReceived";
 import TotalExpenses from "./Components/TotalExpenses";
 import ThisMonthExpenses from "./Components/ThisMonthExpenses";
 import { Footer } from "./Components/Footer";
-const App = () => {
 
-  const [userRole, setUserRole] = useState(
-    localStorage.getItem("role") || ""
-  );
+const AppContent = () => {
+
+  const location = useLocation();
+
+  const [userRole, setUserRole] =
+    useState(
+      localStorage.getItem("role") || ""
+    );
+
+  // HIDE FOOTER & NAVBAR IN LOGIN PAGE
+
+  const isLoginPage =
+    location.pathname === "/";
 
   return (
-    <BrowserRouter>
+    <>
+
+      {/* NAVBAR */}
 
       {
-        userRole && (
+        userRole &&
+        !isLoginPage && (
           <Navbar
             userRole={userRole}
             setUserRole={setUserRole}
@@ -43,11 +56,14 @@ const App = () => {
         )
       }
 
-      {/* ONLY ONE TOAST CONTAINER */}
+      {/* TOAST */}
+
       <ToastContainer
         position="top-right"
         autoClose={2000}
       />
+
+      {/* ROUTES */}
 
       <Routes>
 
@@ -74,25 +90,31 @@ const App = () => {
           path="/add-expense"
           element={<AddExpense />}
         />
-         <Route
+
+        <Route
           path="/this-month-expenses"
           element={
             <ThisMonthExpenses />
           }
         />
-  <Route
-  path="/this-month-paid-flats"
-  element={<ThisMonthPaidFlats />}
-/>
-<Route
-  path="/total-received"
-  element={<TotalReceived />}
-/>
 
-<Route
-  path="/total-expenses"
-  element={<TotalExpenses />}
-/>
+        <Route
+          path="/this-month-paid-flats"
+          element={
+            <ThisMonthPaidFlats />
+          }
+        />
+
+        <Route
+          path="/total-received"
+          element={<TotalReceived />}
+        />
+
+        <Route
+          path="/total-expenses"
+          element={<TotalExpenses />}
+        />
+
         <Route
           path="/this-month-maintenance"
           element={
@@ -101,7 +123,24 @@ const App = () => {
         />
 
       </Routes>
-<Footer />
+
+      {/* FOOTER */}
+
+      {
+        !isLoginPage && <Footer />
+      }
+
+    </>
+  );
+};
+
+const App = () => {
+
+  return (
+    <BrowserRouter>
+
+      <AppContent />
+
     </BrowserRouter>
   );
 };

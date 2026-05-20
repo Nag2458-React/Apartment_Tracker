@@ -28,7 +28,7 @@ body{
     padding: 7px;
 }
 .card label{
-    color: #fff ;
+    color: #fff;
     font-weight: 600;
     margin-bottom:5px;
 }
@@ -39,7 +39,9 @@ body{
     font-size: 16px;
     font-weight: bold !important;
 }
-
+form label{
+    color: #000;
+}
 .dash .card h2 {
     font-size: 23px;
 }
