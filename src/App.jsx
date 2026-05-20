@@ -23,6 +23,7 @@ import ThisMonthMaintenance from "./Components/ThisMonthMaintenance";
 import ThisMonthPaidFlats from "./Components/ThisMonthPaidFlats";
 import TotalReceived from "./Components/TotalReceived";
 import TotalExpenses from "./Components/TotalExpenses";
+import ThisMonthExpenses from "./components/ThisMonthExpenses";
 const App = () => {
 
   const [userRole, setUserRole] = useState(
@@ -71,6 +72,12 @@ const App = () => {
         <Route
           path="/add-expense"
           element={<AddExpense />}
+        />
+         <Route
+          path="/this-month-expenses"
+          element={
+            <ThisMonthExpenses />
+          }
         />
   <Route
   path="/this-month-paid-flats"

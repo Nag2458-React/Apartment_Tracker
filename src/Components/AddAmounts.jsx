@@ -202,7 +202,7 @@ const AddAmounts = () => {
   );
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5 mb-5">
 
       <div className="card shadow p-4">
 

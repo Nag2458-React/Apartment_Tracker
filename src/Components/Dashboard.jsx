@@ -239,17 +239,17 @@ const Dashboard = () => {
     );
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 mb-5">
 
       {/* Cards */}
 
-      <div className="row g-4">
+      <div className="row g-4 dash">
 
         {/* Paid Flats */}
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-dark text-white">
+          <div className="card border-0 shadow-lg rounded-4  bg-white text-black">
 
             <div className="d-flex justify-content-between align-items-center">
 
@@ -273,6 +273,7 @@ const Dashboard = () => {
   size={35}
   style={{
     cursor: "pointer",
+    background:"#c5dcff"
   }}
   onClick={() =>
     navigate(
@@ -291,7 +292,7 @@ const Dashboard = () => {
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-success text-white">
+          <div className="card border-0 shadow-lg rounded-4  bg-success text-white">
 
             <div className="d-flex justify-content-between align-items-center">
 
@@ -332,7 +333,7 @@ const Dashboard = () => {
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-danger text-white">
+          <div className="card border-0 shadow-lg rounded-4  bg-danger text-white">
 
             <div className="d-flex justify-content-between align-items-center">
 
@@ -373,7 +374,7 @@ const Dashboard = () => {
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-primary text-white">
+          <div className="card border-0 shadow-lg rounded-4  bg-primary text-white">
 
             <div className="d-flex justify-content-between align-items-center">
 
@@ -406,7 +407,7 @@ const Dashboard = () => {
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-warning text-dark">
+          <div className="card border-0 shadow-lg rounded-4  bg-warning text-dark">
 
             <div className="d-flex justify-content-between align-items-center">
 
@@ -447,7 +448,7 @@ const Dashboard = () => {
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-info text-white">
+          <div className="card border-0 shadow-lg rounded-4  text-white" style={{background:"rgb(221 58 196)"}}>
 
             <div className="d-flex justify-content-between align-items-center">
 
@@ -467,8 +468,16 @@ const Dashboard = () => {
               </div>
 
               <FaArrowRight
-                size={35}
-              />
+  size={35}
+  style={{
+    cursor: "pointer",
+  }}
+  onClick={() =>
+    navigate(
+      "/this-month-expenses"
+    )
+  }
+/>
 
             </div>
 
@@ -485,7 +494,7 @@ const Dashboard = () => {
         <div className="d-flex justify-content-between align-items-center mb-4">
 
           <h4>
-            Maintenance Details
+           Total Maintenance Details
           </h4>
 
           <input
@@ -505,7 +514,7 @@ const Dashboard = () => {
 
           <table className="table table-hover table-bordered align-middle">
 
-            <thead className="table-dark">
+            <thead className="table-dark1">
 
               <tr>
                 <th>S.No</th>
@@ -590,14 +599,14 @@ const Dashboard = () => {
       <div className="card shadow-lg border-0 rounded-4 p-4 mt-5">
 
         <h4 className="mb-4">
-          Expense Details
+         Total Expense Details
         </h4>
 
         <div className="table-responsive">
 
           <table className="table table-bordered table-hover">
 
-            <thead className="table-dark">
+            <thead className="table-dark1">
 
               <tr>
                 <th>S.No</th>

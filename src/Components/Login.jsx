@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import logo from "../assets/logo.png"
 import {
   collection,
   getDocs,
@@ -81,7 +81,9 @@ const Login = ({ setUserRole }) => {
 
   return (
     <div className="container">
-
+      <div className="text-center mt-5">
+      <img src={logo} alt="logo"  style={{width:"250px"}}/>
+      </div>
       <div className="row justify-content-center">
 
         <div className="col-md-4 mt-5">

@@ -19,10 +19,15 @@ const ThisMonthMaintenance = () => {
   const [data, setData] =
     useState([]);
 
+  const [selectedMonth, setSelectedMonth] =
+    useState("");
+
   const navigate =
     useNavigate();
 
-  const fetchData = async () => {
+  const fetchData = async (
+    monthValue = ""
+  ) => {
 
     try {
 
@@ -31,14 +36,31 @@ const ThisMonthMaintenance = () => {
           collection(db, "flat_amounts")
         );
 
-      const currentDate =
-        new Date();
+      let filterMonth;
+      let filterYear;
 
-      const currentMonth =
-        currentDate.getMonth() + 1;
+      if (monthValue) {
 
-      const currentYear =
-        currentDate.getFullYear();
+        const splitDate =
+          monthValue.split("-");
+
+        filterYear =
+          Number(splitDate[0]);
+
+        filterMonth =
+          Number(splitDate[1]);
+
+      } else {
+
+        const currentDate =
+          new Date();
+
+        filterMonth =
+          currentDate.getMonth() + 1;
+
+        filterYear =
+          currentDate.getFullYear();
+      }
 
       const tempData = [];
 
@@ -61,8 +83,8 @@ const ThisMonthMaintenance = () => {
             billDate.getFullYear();
 
           if (
-            billMonth === currentMonth &&
-            billYear === currentYear
+            billMonth === filterMonth &&
+            billYear === filterYear
           ) {
 
             tempData.push(item);
@@ -84,12 +106,32 @@ const ThisMonthMaintenance = () => {
 
   }, []);
 
+  const handleMonthChange = (e) => {
+
+    const value =
+      e.target.value;
+
+    setSelectedMonth(value);
+
+    fetchData(value);
+  };
+
+  const totalMaintenance =
+    data.reduce(
+      (total, item) =>
+        total +
+        Number(
+          item.maintenanceAmount || 0
+        ),
+      0
+    );
+
   return (
     <div className="container mt-4">
 
       <div className="card shadow border-0 p-4 rounded-4">
 
-        <div className="d-flex justify-content-between align-items-center mb-4">
+        <div className="d-flex justify-content-between align-items-center flex-wrap mb-4">
 
           <div>
 
@@ -104,25 +146,58 @@ const ThisMonthMaintenance = () => {
               ← Back
             </button>
 
-            <h3>
-              This Month Maintenance Details
+            <h3 className="fw-bold">
+              Maintenance Details
             </h3>
 
           </div>
 
-          <h5 className="text-primary">
+          <div className="text-end">
 
-            Total Paid Flats :
-            {" "}
-            {data.length}
+            <h5 className="text-primary mb-2">
 
-          </h5>
+              Total Paid Flats :
+              {" "}
+              {data.length}
+
+            </h5>
+
+            <h5 className="text-success">
+
+              Total Amount :
+              {" "}
+              ₹{totalMaintenance}
+
+            </h5>
+
+          </div>
+
+        </div>
+
+        <div className="row mb-4">
+
+          <div className="col-md-4">
+
+            <label className="fw-bold mb-2">
+              Select Month
+            </label>
+
+            <input
+              type="month"
+              className="form-control"
+              value={selectedMonth}
+              onChange={
+                handleMonthChange
+              }
+            />
+
+          </div>
 
         </div>
 
         <div className="table-responsive">
 
-          <table className="table table-bordered table-hover">
+          <table className="table table-bordered table-hover align-middle">
 
             <thead className="table-dark">
 
@@ -132,8 +207,7 @@ const ThisMonthMaintenance = () => {
                 <th>Owner Name</th>
                 <th>Bill Date</th>
                 <th>Maintenance</th>
-                <th>Expenses</th>
-                <th>Description</th>
+               
               </tr>
 
             </thead>
@@ -144,7 +218,10 @@ const ThisMonthMaintenance = () => {
                 data.length > 0 ? (
 
                   data.map(
-                    (item, index) => (
+                    (
+                      item,
+                      index
+                    ) => (
 
                       <tr key={item.id}>
 
@@ -153,36 +230,33 @@ const ThisMonthMaintenance = () => {
                         </td>
 
                         <td>
-                          {item.flatNumber}
+                          {
+                            item.flatNumber
+                          }
                         </td>
 
                         <td>
-                          {item.ownerName}
+                          {
+                            item.ownerName
+                          }
                         </td>
 
                         <td>
-                          {item.billDate}
+                          {
+                            item.billDate
+                          }
                         </td>
 
                         <td className="text-success fw-bold">
+
                           ₹
                           {
                             item.maintenanceAmount
                           }
+
                         </td>
 
-                        <td className="text-danger fw-bold">
-                          ₹
-                          {
-                            item.expensesAmount
-                          }
-                        </td>
-
-                        <td>
-                          {
-                            item.Description
-                          }
-                        </td>
+                        
 
                       </tr>
                     )

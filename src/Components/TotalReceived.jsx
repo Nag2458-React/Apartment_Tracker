@@ -21,8 +21,19 @@ const TotalReceived = () => {
   const [data, setData] =
     useState([]);
 
+  const [filteredData, setFilteredData] =
+    useState([]);
+
   const [search, setSearch] =
     useState("");
+
+  const [selectedMonth, setSelectedMonth] =
+    useState("");
+
+  const [totalAmount, setTotalAmount] =
+    useState(0);
+
+  // FETCH DATA
 
   const fetchData = async () => {
 
@@ -33,7 +44,7 @@ const TotalReceived = () => {
           collection(db, "flat_amounts")
         );
 
-      const tempData = [];
+      let tempData = [];
 
       querySnapshot.forEach((doc) => {
 
@@ -41,13 +52,28 @@ const TotalReceived = () => {
           id: doc.id,
           ...doc.data(),
         });
+
+      });
+
+      // SORT BY DATE DESC
+
+      tempData.sort((a, b) => {
+        return (
+          new Date(b.billDate) -
+          new Date(a.billDate)
+        );
       });
 
       setData(tempData);
 
+      setFilteredData(tempData);
+
+      calculateTotal(tempData);
+
     } catch (error) {
 
       console.log(error);
+
     }
   };
 
@@ -57,76 +83,264 @@ const TotalReceived = () => {
 
   }, []);
 
-  const filteredData =
-    data.filter(
+  // TOTAL CALCULATION
+
+  const calculateTotal = (
+    records
+  ) => {
+
+    const total =
+      records.reduce(
+        (sum, item) =>
+          sum +
+          Number(
+            item.maintenanceAmount || 0
+          ),
+        0
+      );
+
+    setTotalAmount(total);
+
+  };
+
+  // MONTH FILTER
+
+  const handleMonthChange = (e) => {
+
+    const value =
+      e.target.value;
+
+    setSelectedMonth(value);
+
+    let filtered = [...data];
+
+    // FILTER MONTH
+
+    if (value) {
+
+      const [
+        year,
+        month,
+      ] = value.split("-");
+
+      filtered = filtered.filter(
+        (item) => {
+
+          if (!item.billDate)
+            return false;
+
+          const billDate =
+            new Date(item.billDate);
+
+          const billMonth =
+            String(
+              billDate.getMonth() + 1
+            ).padStart(2, "0");
+
+          const billYear =
+            billDate
+              .getFullYear()
+              .toString();
+
+          return (
+            billMonth === month &&
+            billYear === year
+          );
+        }
+      );
+    }
+
+    // SEARCH FILTER
+
+    if (search) {
+
+      filtered = filtered.filter(
+        (item) =>
+          item.ownerName
+            ?.toLowerCase()
+            .includes(
+              search.toLowerCase()
+            ) ||
+          item.flatNumber
+            ?.toLowerCase()
+            .includes(
+              search.toLowerCase()
+            )
+      );
+    }
+
+    setFilteredData(filtered);
+
+    calculateTotal(filtered);
+
+  };
+
+  // SEARCH FILTER
+
+  const handleSearch = (e) => {
+
+    const value =
+      e.target.value;
+
+    setSearch(value);
+
+    let filtered = [...data];
+
+    // MONTH FILTER
+
+    if (selectedMonth) {
+
+      const [
+        year,
+        month,
+      ] =
+        selectedMonth.split("-");
+
+      filtered = filtered.filter(
+        (item) => {
+
+          if (!item.billDate)
+            return false;
+
+          const billDate =
+            new Date(item.billDate);
+
+          const billMonth =
+            String(
+              billDate.getMonth() + 1
+            ).padStart(2, "0");
+
+          const billYear =
+            billDate
+              .getFullYear()
+              .toString();
+
+          return (
+            billMonth === month &&
+            billYear === year
+          );
+        }
+      );
+    }
+
+    // SEARCH FILTER
+
+    filtered = filtered.filter(
       (item) =>
         item.ownerName
           ?.toLowerCase()
           .includes(
-            search.toLowerCase()
+            value.toLowerCase()
           ) ||
         item.flatNumber
           ?.toLowerCase()
           .includes(
-            search.toLowerCase()
+            value.toLowerCase()
           )
     );
 
+    setFilteredData(filtered);
+
+    calculateTotal(filtered);
+
+  };
+
   return (
+
     <div className="container mt-4">
 
       <div className="card shadow-lg border-0 rounded-4 p-4">
 
+        {/* HEADER */}
+
         <div className="d-flex justify-content-between align-items-center mb-4">
 
-          <h3 className="fw-bold">
-            Total Received Amount Details
-          </h3>
+          <div>
+
+            <h3 className="fw-bold">
+              Total Received Amount
+            </h3>
+
+            <h4 className="text-success fw-bold">
+              ₹ {totalAmount}
+            </h4>
+
+          </div>
 
           <button
             className="btn btn-dark"
             onClick={() =>
-              navigate(
-                "/dashboard"
-              )
+              navigate("/dashboard")
             }
           >
-            Back
+            ← Back
           </button>
 
         </div>
 
-        <div className="row mb-3">
+        {/* FILTERS */}
 
-          <div className="col-md-4">
+        <div className="row mb-4">
+
+          {/* MONTH */}
+
+          <div className="col-md-4 mb-3">
+
+            <label className="fw-bold mb-2">
+              Select Month
+            </label>
+
+            <input
+              type="month"
+              className="form-control"
+              value={selectedMonth}
+              onChange={
+                handleMonthChange
+              }
+            />
+
+          </div>
+
+          {/* SEARCH */}
+
+          <div className="col-md-4 mb-3">
+
+            <label className="fw-bold mb-2">
+              Search
+            </label>
 
             <input
               type="text"
               className="form-control"
               placeholder="Search Flat / Owner"
-              onChange={(e) =>
-                setSearch(
-                  e.target.value
-                )
-              }
+              value={search}
+              onChange={handleSearch}
             />
 
           </div>
 
         </div>
 
+        {/* TABLE */}
+
         <div className="table-responsive">
 
-          <table className="table table-bordered table-hover">
+          <table className="table table-bordered table-hover align-middle">
 
             <thead className="table-dark">
 
               <tr>
+
                 <th>S.No</th>
+
                 <th>Flat No</th>
+
                 <th>Owner Name</th>
-                <th>Date</th>
+
+                <th>Bill Date</th>
+
                 <th>Amount</th>
+
               </tr>
 
             </thead>
@@ -174,20 +388,23 @@ const TotalReceived = () => {
                         </td>
 
                       </tr>
+
                     )
                   )
+
                 ) : (
 
                   <tr>
 
                     <td
                       colSpan="5"
-                      className="text-center text-danger"
+                      className="text-center text-danger fw-bold"
                     >
                       No Data Found
                     </td>
 
                   </tr>
+
                 )
               }
 
@@ -200,6 +417,7 @@ const TotalReceived = () => {
       </div>
 
     </div>
+
   );
 };
 

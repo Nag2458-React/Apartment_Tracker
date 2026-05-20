@@ -26,11 +26,11 @@ const Navbar = ({
 
       <div className="container">
 
-        <Link
-          className="navbar-brand"
+        <Link 
+          className="navbar-brand nav-link"
           to="/dashboard"
         >
-          Apartment Tracker
+          Welcome to Naina Apartments
         </Link>
 
         <ul className="navbar-nav ms-auto">
@@ -76,7 +76,7 @@ const Navbar = ({
           <li className="nav-item">
 
             <button
-              className="btn btn-danger btn-sm ms-3"
+              className="btn btn-danger btn-sm ms-3 log"
               onClick={handleLogout}
             >
               Logout
