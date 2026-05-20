@@ -309,7 +309,7 @@ const AddExpense = () => {
 
           <table className="table table-bordered">
 
-            <thead className="table-dark">
+            <thead className="table-dark1">
 
               <tr>
                 <th>S.No</th>
