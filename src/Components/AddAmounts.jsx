@@ -204,9 +204,9 @@ const AddAmounts = () => {
   return (
     <div className="container mt-5 mb-5">
 
-      <div className="card shadow p-4">
+      <div className="card p-4 shadow" style={{background:"transparent",border:"1px solid #ffffff8c"}}>
 
-        <h3 className="text-center mb-4">
+        <h3 className="text-center mb-4 text-white">
           Add Flat Amounts
         </h3>
 
@@ -604,28 +604,7 @@ const AddAmounts = () => {
 
                     </div>
 
-                    <div className="col-md-6 mb-3">
-
-                      <label>
-                        Expenses Amount
-                      </label>
-
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={
-                          editData.expensesAmount
-                        }
-                        onChange={(e) =>
-                          setEditData({
-                            ...editData,
-                            expensesAmount:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                    </div>
+                 
 
                   </div>
                 )

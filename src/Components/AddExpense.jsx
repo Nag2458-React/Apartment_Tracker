@@ -202,9 +202,9 @@ const AddExpense = () => {
   return (
     <div className="container mt-5 mb-5">
 
-      <div className="card shadow p-4">
+      <div className="card shadow p-4" style={{background:"transparent",border:"1px solid #ffffff8c"}}>
 
-        <h3 className="text-center mb-4">
+        <h3 className="text-center mb-4 text-white">
           Add Expense
         </h3>
 
@@ -307,7 +307,7 @@ const AddExpense = () => {
 
         <div className="table-responsive">
 
-          <table className="table table-bordered">
+          <table className="table table-bordered table-striped">
 
             <thead className="table-dark1">
 

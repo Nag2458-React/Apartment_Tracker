@@ -512,7 +512,7 @@ const Dashboard = () => {
 
         <div className="table-responsive">
 
-          <table className="table table-hover table-bordered align-middle">
+          <table className="table table-hover table-bordered align-middle table-striped">
 
             <thead className="table-dark1">
 
@@ -604,7 +604,7 @@ const Dashboard = () => {
 
         <div className="table-responsive">
 
-          <table className="table table-bordered table-hover">
+          <table className="table table-bordered table-hover table-striped">
 
             <thead className="table-dark1">
 

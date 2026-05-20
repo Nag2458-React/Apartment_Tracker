@@ -325,7 +325,7 @@ const TotalReceived = () => {
 
         <div className="table-responsive">
 
-          <table className="table table-bordered table-hover align-middle">
+          <table className="table table-bordered table-hover align-middle table-striped">
 
             <thead className="table-dark1">
 
