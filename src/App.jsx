@@ -23,7 +23,7 @@ import ThisMonthMaintenance from "./Components/ThisMonthMaintenance";
 import ThisMonthPaidFlats from "./Components/ThisMonthPaidFlats";
 import TotalReceived from "./Components/TotalReceived";
 import TotalExpenses from "./Components/TotalExpenses";
-import ThisMonthExpenses from "./components/ThisMonthExpenses";
+import ThisMonthExpenses from "./Components/ThisMonthExpenses";
 const App = () => {
 
   const [userRole, setUserRole] = useState(
