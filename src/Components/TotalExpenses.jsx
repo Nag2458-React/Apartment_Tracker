@@ -82,7 +82,7 @@ const TotalExpenses = () => {
 
           <table className="table table-bordered table-hover">
 
-            <thead className="table-dark">
+            <thead className="table-dark1">
 
               <tr>
                 <th>S.No</th>

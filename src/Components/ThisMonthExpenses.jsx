@@ -376,7 +376,7 @@ const ThisMonthExpenses = () => {
 
             <table className="table table-bordered table-hover align-middle">
 
-              <thead className="table-dark">
+              <thead className="table-dark1">
 
                 <tr>
 
