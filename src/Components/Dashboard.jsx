@@ -20,200 +20,273 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
-  const [maintenanceData, setMaintenanceData] =
-    useState([]);
-
-  const [expenseData, setExpenseData] =
-    useState([]);
-
-  const [search, setSearch] =
-    useState("");
+  // STATES
 
   const [
-    totalMaintenance,
-    setTotalMaintenance,
+    currentMonthReceived,
+    setCurrentMonthReceived,
   ] = useState(0);
 
   const [
-    totalExpenses,
-    setTotalExpenses,
+    currentMonthExpenses,
+    setCurrentMonthExpenses,
   ] = useState(0);
 
   const [
-    remainingBalance,
-    setRemainingBalance,
+    currentMonthBalance,
+    setCurrentMonthBalance,
   ] = useState(0);
 
   const [
-    monthMaintenance,
-    setMonthMaintenance,
+    previousMonthBalance,
+    setPreviousMonthBalance,
   ] = useState(0);
 
   const [
-    monthExpenses,
-    setMonthExpenses,
+    allMonthsBalance,
+    setAllMonthsBalance,
   ] = useState(0);
 
   const [
-    thisMonthPaidFlats,
-    setThisMonthPaidFlats,
+    currentMonthPaidFlats,
+    setCurrentMonthPaidFlats,
   ] = useState(0);
 
   const totalFlats = 10;
+
+  const navigateMonth = (
+    path
+  ) => {
+
+    navigate(path);
+
+  };
+
+  // MONTH NAME
+
+  const currentDate =
+    new Date();
+
+  const monthName =
+    currentDate.toLocaleString(
+      "default",
+      {
+        month: "long",
+      }
+    );
+
+  const currentYear =
+    currentDate.getFullYear();
+
+  // FETCH DATA
 
   const fetchData = async () => {
 
     try {
 
-      // Maintenance Collection
+      // MAINTENANCE DATA
+
       const maintenanceSnapshot =
         await getDocs(
-          collection(db, "flat_amounts")
+          collection(
+            db,
+            "flat_amounts"
+          )
         );
 
-      // Expense Collection
+      // EXPENSE DATA
+
       const expenseSnapshot =
         await getDocs(
-          collection(db, "expenses")
+          collection(
+            db,
+            "expenses"
+          )
         );
 
-      const maintenanceTemp = [];
+      let currentReceived = 0;
 
-      const expenseTemp = [];
+      let currentExpense = 0;
 
-      let maintenanceTotal = 0;
+      let allReceived = 0;
 
-      let expenseTotal = 0;
+      let allExpenses = 0;
 
-      let currentMonthMaintenance = 0;
+      let previousReceived = 0;
 
-      let currentMonthExpense = 0;
+      let previousExpenses = 0;
 
-      let currentMonthFlatCount = 0;
-
-      const currentDate = new Date();
+      let paidFlats = 0;
 
       const currentMonth =
         currentDate.getMonth() + 1;
 
-      const currentYear =
-        currentDate.getFullYear();
+      const previousMonth =
+        currentMonth === 1
+          ? 12
+          : currentMonth - 1;
 
-      // Maintenance Data
-      maintenanceSnapshot.forEach((doc) => {
+      const previousYear =
+        currentMonth === 1
+          ? currentYear - 1
+          : currentYear;
 
-        const item = {
-          id: doc.id,
-          ...doc.data(),
-        };
+      // RECEIVED AMOUNTS
 
-        maintenanceTemp.push(item);
+      maintenanceSnapshot.forEach(
+        (doc) => {
 
-        const amount =
-          Number(
-            item.maintenanceAmount
-          ) || 0;
+          const item = {
+            id: doc.id,
+            ...doc.data(),
+          };
 
-        maintenanceTotal += amount;
+          const amount =
+            Number(
+              item.maintenanceAmount
+            ) || 0;
 
-        if (item.billDate) {
+          allReceived += amount;
 
-          const billDate =
-            new Date(item.billDate);
+          if (item.billDate) {
 
-          const billMonth =
-            billDate.getMonth() + 1;
+            const billDate =
+              new Date(
+                item.billDate
+              );
 
-          const billYear =
-            billDate.getFullYear();
+            const billMonth =
+              billDate.getMonth() + 1;
 
-          if (
-            billMonth === currentMonth &&
-            billYear === currentYear
-          ) {
+            const billYear =
+              billDate.getFullYear();
 
-            currentMonthMaintenance +=
-              amount;
+            // CURRENT MONTH
 
-            currentMonthFlatCount++;
+            if (
+              billMonth ===
+                currentMonth &&
+              billYear ===
+                currentYear
+            ) {
+
+              currentReceived +=
+                amount;
+
+              paidFlats++;
+
+            }
+
+            // PREVIOUS MONTH
+
+            if (
+              billMonth ===
+                previousMonth &&
+              billYear ===
+                previousYear
+            ) {
+
+              previousReceived +=
+                amount;
+
+            }
           }
         }
-      });
+      );
 
-      // Expense Data
-      expenseSnapshot.forEach((doc) => {
+      // EXPENSES
 
-        const item = {
-          id: doc.id,
-          ...doc.data(),
-        };
+      expenseSnapshot.forEach(
+        (doc) => {
 
-        expenseTemp.push(item);
+          const item = {
+            id: doc.id,
+            ...doc.data(),
+          };
 
-        const amount =
-          Number(
-            item.maintenanceAmount
-          ) || 0;
+          const amount =
+            Number(
+              item.maintenanceAmount
+            ) || 0;
 
-        expenseTotal += amount;
+          allExpenses += amount;
 
-        if (item.billDate) {
+          if (item.billDate) {
 
-          const billDate =
-            new Date(item.billDate);
+            const billDate =
+              new Date(
+                item.billDate
+              );
 
-          const billMonth =
-            billDate.getMonth() + 1;
+            const billMonth =
+              billDate.getMonth() + 1;
 
-          const billYear =
-            billDate.getFullYear();
+            const billYear =
+              billDate.getFullYear();
 
-          if (
-            billMonth === currentMonth &&
-            billYear === currentYear
-          ) {
+            // CURRENT MONTH
 
-            currentMonthExpense +=
-              amount;
+            if (
+              billMonth ===
+                currentMonth &&
+              billYear ===
+                currentYear
+            ) {
+
+              currentExpense +=
+                amount;
+
+            }
+
+            // PREVIOUS MONTH
+
+            if (
+              billMonth ===
+                previousMonth &&
+              billYear ===
+                previousYear
+            ) {
+
+              previousExpenses +=
+                amount;
+
+            }
           }
         }
-      });
-
-      setMaintenanceData(
-        maintenanceTemp
       );
 
-      setExpenseData(
-        expenseTemp
+      // SET VALUES
+
+      setCurrentMonthReceived(
+        currentReceived
       );
 
-      setTotalMaintenance(
-        maintenanceTotal
+      setCurrentMonthExpenses(
+        currentExpense
       );
 
-      setTotalExpenses(
-        expenseTotal
+      setCurrentMonthBalance(
+        currentReceived -
+          currentExpense
       );
 
-      setRemainingBalance(
-        maintenanceTotal - expenseTotal
+      setPreviousMonthBalance(
+        previousReceived -
+          previousExpenses
       );
 
-      setMonthMaintenance(
-        currentMonthMaintenance
+      setAllMonthsBalance(
+        allReceived - allExpenses
       );
 
-      setMonthExpenses(
-        currentMonthExpense
-      );
-
-      setThisMonthPaidFlats(
-        currentMonthFlatCount
+      setCurrentMonthPaidFlats(
+        paidFlats
       );
 
     } catch (error) {
 
       console.log(error);
+
     }
   };
 
@@ -223,205 +296,38 @@ const Dashboard = () => {
 
   }, []);
 
-  const filteredData =
-    maintenanceData.filter(
-      (item) =>
-        item.ownerName
-          ?.toLowerCase()
-          .includes(
-            search.toLowerCase()
-          ) ||
-        item.flatNumber
-          ?.toLowerCase()
-          .includes(
-            search.toLowerCase()
-          )
-    );
-
   return (
-    <div className="container mt-4 mb-5">
 
-      {/* Cards */}
+    <div className="container mt-5 mb-5">
 
-      <div className="row g-4 dash">
+      <div className="row g-4">
 
-        {/* Paid Flats */}
+        {/* CURRENT MONTH PAID FLATS */}
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4  bg-white text-black">
+          <div className="card border-0 shadow-lg rounded-4 p-4 bg-dark text-white">
 
             <div className="d-flex justify-content-between align-items-center">
 
               <div>
 
-                <h6 className="fw-light">
-                  This Month Paid Flats
+                <h6>
+                  {monthName} - {currentYear} Paid Flats
                 </h6>
 
                 <h2 className="fw-bold">
-                  {thisMonthPaidFlats}
+
+                  {
+                    currentMonthPaidFlats
+                  }
+
                   {" "}
                   /
                   {" "}
+
                   {totalFlats}
-                </h2>
 
-              </div>
-
-              <FaArrowRight
-  size={35}
-  style={{
-    cursor: "pointer",
-    background:"#c5dcff"
-  }}
-  onClick={() =>
-    navigate(
-      "/this-month-paid-flats"
-    )
-  }
-/>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* Total Received */}
-
-        <div className="col-md-4">
-
-          <div className="card border-0 shadow-lg rounded-4  bg-success text-white">
-
-            <div className="d-flex justify-content-between align-items-center">
-
-              <div>
-
-                <h6 className="fw-light">
-                  Total Received Amount
-                </h6>
-
-                <h2 className="fw-bold">
-                  ₹
-                  {
-                    totalMaintenance
-                  }
-                </h2>
-
-              </div>
-
-             <FaArrowRight
-  size={35}
-  style={{
-    cursor: "pointer",
-  }}
-  onClick={() =>
-    navigate(
-      "/total-received"
-    )
-  }
-/>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* Total Expense */}
-
-        <div className="col-md-4">
-
-          <div className="card border-0 shadow-lg rounded-4  bg-danger text-white">
-
-            <div className="d-flex justify-content-between align-items-center">
-
-              <div>
-
-                <h6 className="fw-light">
-                  Total Expenses
-                </h6>
-
-                <h2 className="fw-bold">
-                  ₹
-                  {
-                    totalExpenses
-                  }
-                </h2>
-
-              </div>
-
-             <FaArrowRight
-  size={35}
-  style={{
-    cursor: "pointer",
-  }}
-  onClick={() =>
-    navigate(
-      "/total-expenses"
-    )
-  }
-/>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* Remaining */}
-
-        <div className="col-md-4">
-
-          <div className="card border-0 shadow-lg rounded-4  bg-primary text-white">
-
-            <div className="d-flex justify-content-between align-items-center">
-
-              <div>
-
-                <h6 className="fw-light">
-                  Remaining Balance
-                </h6>
-
-                <h2 className="fw-bold">
-                  ₹
-                  {
-                    remainingBalance
-                  }
-                </h2>
-
-              </div>
-
-              <FaArrowRight
-                size={35}
-              />
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* Month Maintenance */}
-
-        <div className="col-md-4">
-
-          <div className="card border-0 shadow-lg rounded-4  bg-warning text-dark">
-
-            <div className="d-flex justify-content-between align-items-center">
-
-              <div>
-
-                <h6 className="fw-light">
-                  This Month Received Amount
-                </h6>
-
-                <h2 className="fw-bold">
-                  ₹
-                  {
-                    monthMaintenance
-                  }
                 </h2>
 
               </div>
@@ -432,7 +338,52 @@ const Dashboard = () => {
                   cursor: "pointer",
                 }}
                 onClick={() =>
-                  navigate(
+                  navigateMonth(
+                    "/this-month-paid-flats"
+                  )
+                }
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* CURRENT MONTH RECEIVED */}
+
+        <div className="col-md-4">
+
+          <div className="card border-0 shadow-lg rounded-4 p-4 bg-success text-white">
+
+            <div className="d-flex justify-content-between align-items-center">
+
+              <div>
+
+                <h6>
+
+                  {monthName} - {currentYear} Received Amount
+
+                </h6>
+
+                <h2 className="fw-bold">
+
+                  ₹
+                  {
+                    currentMonthReceived
+                  }
+
+                </h2>
+
+              </div>
+
+              <FaArrowRight
+                size={35}
+                style={{
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  navigateMonth(
                     "/this-month-maintenance"
                   )
                 }
@@ -444,40 +395,50 @@ const Dashboard = () => {
 
         </div>
 
-        {/* Month Expense */}
+        {/* CURRENT MONTH EXPENSES */}
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4  text-white" style={{background:"rgb(221 58 196)"}}>
+          <div
+            className="card border-0 shadow-lg rounded-4 p-4 text-white"
+            style={{
+              background:
+                "rgb(221 58 196)",
+            }}
+          >
 
             <div className="d-flex justify-content-between align-items-center">
 
               <div>
 
-                <h6 className="fw-light">
-                  This Month Expenses
+                <h6>
+
+                  {monthName} - {currentYear} Expenses
+
                 </h6>
 
                 <h2 className="fw-bold">
+
                   ₹
                   {
-                    monthExpenses
+                    currentMonthExpenses
                   }
+
                 </h2>
 
               </div>
 
               <FaArrowRight
-  size={35}
-  style={{
-    cursor: "pointer",
-  }}
-  onClick={() =>
-    navigate(
-      "/this-month-expenses"
-    )
-  }
-/>
+                size={35}
+                style={{
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  navigateMonth(
+                    "/this-month-expenses"
+                  )
+                }
+              />
 
             </div>
 
@@ -485,195 +446,114 @@ const Dashboard = () => {
 
         </div>
 
-      </div>
+        {/* CURRENT MONTH BALANCE */}
 
-      {/* Maintenance Table */}
+        <div className="col-md-4">
 
-      <div className="card shadow-lg border-0 rounded-4 p-4 mt-5">
+          <div className="card border-0 shadow-lg rounded-4 p-4 bg-primary text-white">
 
-        <div className="d-flex justify-content-between align-items-center mb-4">
+            <div className="d-flex justify-content-between align-items-center">
 
-          <h4>
-           Total Maintenance Details
-          </h4>
+              <div>
 
-          <input
-            type="text"
-            className="form-control w-25"
-            placeholder="Search"
-            onChange={(e) =>
-              setSearch(
-                e.target.value
-              )
-            }
-          />
+                <h6>
 
-        </div>
+                  {monthName} - {currentYear} Remaining Balance
 
-        <div className="table-responsive">
+                </h6>
 
-          <table className="table table-hover table-bordered align-middle table-striped">
+                <h2 className="fw-bold">
 
-            <thead className="table-dark1">
+                  ₹
+                  {
+                    currentMonthBalance
+                  }
 
-              <tr>
-                <th>S.No</th>
-                <th>Flat No</th>
-                <th>Owner Name</th>
-                <th>Bill Date</th>
-                <th>Maintenance</th>
-              </tr>
+                </h2>
 
-            </thead>
+              </div>
 
-            <tbody>
+              <FaArrowRight
+                size={35}
+              />
 
-              {
-                filteredData.length > 0 ? (
+            </div>
 
-                  filteredData.map(
-                    (
-                      item,
-                      index
-                    ) => (
-
-                      <tr key={item.id}>
-
-                        <td>
-                          {index + 1}
-                        </td>
-
-                        <td>
-                          {
-                            item.flatNumber
-                          }
-                        </td>
-
-                        <td>
-                          {
-                            item.ownerName
-                          }
-                        </td>
-
-                        <td>
-                          {
-                            item.billDate
-                          }
-                        </td>
-
-                        <td className="text-success fw-bold">
-                          ₹
-                          {
-                            item.maintenanceAmount
-                          }
-                        </td>
-
-                      </tr>
-                    )
-                  )
-                ) : (
-
-                  <tr>
-
-                    <td
-                      colSpan="5"
-                      className="text-center text-danger"
-                    >
-                      No Data Found
-                    </td>
-
-                  </tr>
-                )
-              }
-
-            </tbody>
-
-          </table>
+          </div>
 
         </div>
 
-      </div>
+        {/* PREVIOUS MONTH BALANCE */}
 
-      {/* Expense Table */}
+        <div className="col-md-4">
 
-      <div className="card shadow-lg border-0 rounded-4 p-4 mt-5">
+          <div className="card border-0 shadow-lg rounded-4 p-4 bg-warning text-dark">
 
-        <h4 className="mb-4">
-         Total Expense Details
-        </h4>
+            <div className="d-flex justify-content-between align-items-center">
 
-        <div className="table-responsive">
+              <div>
 
-          <table className="table table-bordered table-hover table-striped">
+                <h6>
 
-            <thead className="table-dark1">
+                  Previous Month Remaining Balance
 
-              <tr>
-                <th>S.No</th>
-                <th>Date</th>
-                <th>Expense Title</th>
-                <th>Amount</th>
-              </tr>
+                </h6>
 
-            </thead>
+                <h2 className="fw-bold">
 
-            <tbody>
+                  ₹
+                  {
+                    previousMonthBalance
+                  }
 
-              {
-                expenseData.length > 0 ? (
+                </h2>
 
-                  expenseData.map(
-                    (
-                      item,
-                      index
-                    ) => (
+              </div>
 
-                      <tr key={item.id}>
+              <FaArrowRight
+                size={35}
+              />
 
-                        <td>
-                          {index + 1}
-                        </td>
+            </div>
 
-                        <td>
-                          {
-                            item.billDate
-                          }
-                        </td>
+          </div>
 
-                        <td>
-                          {
-                            item.title
-                          }
-                        </td>
+        </div>
 
-                        <td className="text-danger fw-bold">
-                          ₹
-                          {
-                            item.maintenanceAmount
-                          }
-                        </td>
+        {/* ALL MONTHS BALANCE */}
 
-                      </tr>
-                    )
-                  )
-                ) : (
+        <div className="col-md-4">
 
-                  <tr>
+          <div className="card border-0 shadow-lg rounded-4 p-4 bg-danger text-white">
 
-                    <td
-                      colSpan="4"
-                      className="text-center text-danger"
-                    >
-                      No Expense Data
-                    </td>
+            <div className="d-flex justify-content-between align-items-center">
 
-                  </tr>
-                )
-              }
+              <div>
 
-            </tbody>
+                <h6>
 
-          </table>
+                  All Months Remaining Balance
+
+                </h6>
+
+                <h2 className="fw-bold">
+
+                  ₹
+                  {
+                    allMonthsBalance
+                  }
+
+                </h2>
+
+              </div>
+
+              <FaArrowRight
+                size={35}
+              />
+
+            </div>
+
+          </div>
 
         </div>
 

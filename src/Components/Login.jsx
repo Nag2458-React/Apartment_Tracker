@@ -68,7 +68,7 @@ const Login = ({ setUserRole }) => {
 
           navigate("/dashboard");
 
-        }, 1500);
+        }, 1000);
       });
 
     } catch (error) {
@@ -80,7 +80,7 @@ const Login = ({ setUserRole }) => {
   };
 
   return (
-    <div className="container">
+    <div className="container">   
       <div className="text-center mt-5">
       <img src={logo} alt="logo"  style={{width:"250px"}}/>
       </div>
@@ -98,7 +98,7 @@ const Login = ({ setUserRole }) => {
 
               <div className="mb-3">
 
-                <label>Email</label>
+                <label className="text-black">Email</label>
 
                 <input
                   type="email"
@@ -113,7 +113,7 @@ const Login = ({ setUserRole }) => {
 
               <div className="mb-3">
 
-                <label>Password</label>
+                <label  className="text-black">Password</label>
 
                 <input
                   type="password"
@@ -126,7 +126,7 @@ const Login = ({ setUserRole }) => {
 
               </div>
 
-              <button className="btn btn-primary w-100">
+              <button className="btn btn-primary w-100">  
                 Login
               </button>
 
