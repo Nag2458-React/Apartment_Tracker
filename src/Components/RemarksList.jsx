@@ -23,18 +23,22 @@ export const RemarksList = () => {
   ] = useState([]);
 
   const [
-    selectedDate,
-    setSelectedDate,
+    selectedMonth,
+    setSelectedMonth,
   ] = useState("");
+
+  // CURRENT MONTH
 
   const currentDate =
     new Date();
 
   const currentMonth =
-    currentDate.getMonth() + 1;
+    currentDate
+      .getMonth() + 1;
 
   const currentYear =
-    currentDate.getFullYear();
+    currentDate
+      .getFullYear();
 
   // FETCH REMARKS
 
@@ -61,47 +65,52 @@ export const RemarksList = () => {
               ...doc.data(),
             };
 
-            if (
-              item.billDate
-            ) {
-
-              const billDate =
-                new Date(
-                  item.billDate
-                );
-
-              const billMonth =
-                billDate.getMonth() + 1;
-
-              const billYear =
-                billDate.getFullYear();
-
-              // CURRENT MONTH ONLY
-
-              if (
-                billMonth ===
-                  currentMonth &&
-                billYear ===
-                  currentYear
-              ) {
-
-                remarksTemp.push(
-                  item
-                );
-
-              }
-
-            }
+            remarksTemp.push(
+              item
+            );
 
           }
+        );
+
+        // SORT LATEST FIRST
+
+        remarksTemp.sort(
+          (a, b) =>
+            new Date(
+              b.billDate
+            ) -
+            new Date(
+              a.billDate
+            )
         );
 
         setRemarksData(
           remarksTemp
         );
 
+        // DEFAULT CURRENT MONTH DATA
+
+        const currentMonthData =
+          remarksTemp.filter(
+            (item) => {
+
+              const billDate =
+                new Date(
+                  item.billDate
+                );
+
+              return (
+                billDate.getMonth() + 1 ===
+                  currentMonth &&
+                billDate.getFullYear() ===
+                  currentYear
+              );
+
+            }
+          );
+
         setFilteredData(
-          remarksTemp
+          currentMonthData
         );
 
       } catch (error) {
@@ -112,34 +121,74 @@ export const RemarksList = () => {
 
     };
 
-  // DATE FILTER
+  // MONTH FILTER
 
-  const handleDateChange = (
+  const handleMonthChange = (
     e
   ) => {
 
     const value =
       e.target.value;
 
-    setSelectedDate(
+    setSelectedMonth(
       value
     );
 
+    // SHOW CURRENT MONTH IF EMPTY
+
     if (!value) {
 
+      const currentMonthData =
+        remarksData.filter(
+          (item) => {
+
+            const billDate =
+              new Date(
+                item.billDate
+              );
+
+            return (
+              billDate.getMonth() + 1 ===
+                currentMonth &&
+              billDate.getFullYear() ===
+                currentYear
+            );
+
+          }
+        );
+
       setFilteredData(
-        remarksData
+        currentMonthData
       );
 
       return;
 
     }
 
+    // SELECTED MONTH FILTER
+
+    const [
+      year,
+      month,
+    ] = value.split("-");
+
     const filtered =
       remarksData.filter(
-        (item) =>
-          item.billDate ===
-          value
+        (item) => {
+
+          const billDate =
+            new Date(
+              item.billDate
+            );
+
+          return (
+            billDate.getMonth() + 1 ===
+              Number(month) &&
+            billDate.getFullYear() ===
+              Number(year)
+          );
+
+        }
       );
 
     setFilteredData(
@@ -166,24 +215,24 @@ export const RemarksList = () => {
         }}
       >
 
-        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
 
           <h3 className="text-white">
 
-            Current Month Suggestions / Remarks List
+            Suggestions / Remarks Status
 
           </h3>
 
           <div>
 
             <input
-              type="date"
+              type="month"
               className="form-control"
               value={
-                selectedDate
+                selectedMonth
               }
               onChange={
-                handleDateChange
+                handleMonthChange
               }
             />
 
@@ -217,6 +266,10 @@ export const RemarksList = () => {
 
                 <th>
                   Date
+                </th>
+
+                <th>
+                  Status
                 </th>
 
               </tr>
@@ -281,6 +334,25 @@ export const RemarksList = () => {
 
                         </td>
 
+                        <td>
+
+                          <span
+                            className={
+                              item.status ===
+                              "Clear"
+                                ? "badge bg-success"
+                                : "badge bg-warning text-dark"
+                            }
+                          >
+
+                            {
+                              item.status
+                            }
+
+                          </span>
+
+                        </td>
+
                       </tr>
 
                     )
@@ -291,7 +363,7 @@ export const RemarksList = () => {
                   <tr>
 
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="text-danger fw-bold"
                     >
 
