@@ -13,7 +13,7 @@ body{
 .navbar {
     padding: 15px 0px;
     margin-bottom: 0px !important;
-    border-bottom: 1px solid #414141;
+    /* border-bottom: 1px solid #414141; */
 }
 .dash svg {
     font-size: 14px !important;

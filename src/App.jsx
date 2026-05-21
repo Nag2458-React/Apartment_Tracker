@@ -26,7 +26,8 @@ import TotalReceived from "./Components/TotalReceived";
 import TotalExpenses from "./Components/TotalExpenses";
 import ThisMonthExpenses from "./Components/ThisMonthExpenses";
 import { Footer } from "./Components/Footer";
-
+import { Remarks } from "./Components/Remarks";
+import {RemarksList} from "./Components/RemarksList"
 const AppContent = () => {
 
   const location = useLocation();
@@ -114,7 +115,14 @@ const AppContent = () => {
           path="/total-expenses"
           element={<TotalExpenses />}
         />
-
+    <Route
+          path="/remarks"
+          element={<Remarks />}
+        />
+         <Route
+          path="/remarks-list"
+          element={<RemarksList />}
+        />
         <Route
           path="/this-month-maintenance"
           element={

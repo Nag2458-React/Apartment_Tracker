@@ -12,7 +12,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db } from "../Firebase";
 
 import { toast } from "react-toastify";
 
@@ -23,13 +23,20 @@ const AddAmounts = () => {
     ownerName: "",
     billDate: "",
     maintenanceAmount: "",
-    // expensesAmount: "",
-    // Description:""
+    Description: "",
   });
 
-  const [data, setData] = useState([]);
+  const [data, setData] =
+    useState([]);
 
-  const [search, setSearch] = useState("");
+  const [filteredData, setFilteredData] =
+    useState([]);
+
+  const [search, setSearch] =
+    useState("");
+
+  const [selectedMonth, setSelectedMonth] =
+    useState("");
 
   const [editData, setEditData] =
     useState(null);
@@ -39,13 +46,34 @@ const AddAmounts = () => {
 
   const recordsPerPage = 5;
 
+  // MONTH NAME
+
+  const currentDate =
+    new Date();
+
+  const currentMonthName =
+    currentDate.toLocaleString(
+      "default",
+      {
+        month: "long",
+      }
+    );
+
+  const currentYear =
+    currentDate.getFullYear();
+
+  // HANDLE CHANGE
+
   const handleChange = (e) => {
 
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.value,
     });
   };
+
+  // ADD DATA
 
   const handleSubmit = async (e) => {
 
@@ -54,19 +82,23 @@ const AddAmounts = () => {
     try {
 
       await addDoc(
-        collection(db, "flat_amounts"),
+        collection(
+          db,
+          "flat_amounts"
+        ),
         form
       );
 
-      toast.success("Data Added Successfully");
+      toast.success(
+        "Data Added Successfully"
+      );
 
       setForm({
         flatNumber: "",
         ownerName: "",
         billDate: "",
         maintenanceAmount: "",
-        // expensesAmount: "",
-        // Description:""
+        Description: "",
       });
 
       fetchData();
@@ -75,9 +107,13 @@ const AddAmounts = () => {
 
       console.log(error);
 
-      toast.error("Failed To Add Data");
+      toast.error(
+        "Failed To Add Data"
+      );
     }
   };
+
+  // FETCH DATA
 
   const fetchData = async () => {
 
@@ -85,20 +121,30 @@ const AddAmounts = () => {
 
       const querySnapshot =
         await getDocs(
-          collection(db, "flat_amounts")
+          collection(
+            db,
+            "flat_amounts"
+          )
         );
 
       const tempData = [];
 
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(
+        (doc) => {
 
-        tempData.push({
-          id: doc.id,
-          ...doc.data(),
-        });
-      });
+          tempData.push({
+            id: doc.id,
+            ...doc.data(),
+          });
+        }
+      );
 
       setData(tempData);
+
+      filterMonthData(
+        tempData,
+        selectedMonth
+      );
 
     } catch (error) {
 
@@ -112,21 +158,123 @@ const AddAmounts = () => {
 
   }, []);
 
-  const handleDelete = async (id) => {
+  // FILTER MONTH DATA
 
-    const confirmDelete = window.confirm(
-      "Are you sure want to delete?"
+  const filterMonthData = (
+    allData,
+    monthValue
+  ) => {
+
+    let filtered = [];
+
+    // SELECTED MONTH
+
+    if (monthValue) {
+
+      filtered = allData.filter(
+        (item) => {
+
+          if (!item.billDate)
+            return false;
+
+          const billDate =
+            new Date(
+              item.billDate
+            );
+
+          const itemMonth =
+            `${billDate.getFullYear()}-${String(
+              billDate.getMonth() +
+                1
+            ).padStart(
+              2,
+              "0"
+            )}`;
+
+          return (
+            itemMonth ===
+            monthValue
+          );
+        }
+      );
+
+    } else {
+
+      // CURRENT MONTH
+
+      const currentMonth =
+        currentDate.getMonth();
+
+      const currentYear =
+        currentDate.getFullYear();
+
+      filtered = allData.filter(
+        (item) => {
+
+          if (!item.billDate)
+            return false;
+
+          const billDate =
+            new Date(
+              item.billDate
+            );
+
+          return (
+            billDate.getMonth() ===
+              currentMonth &&
+            billDate.getFullYear() ===
+              currentYear
+          );
+        }
+      );
+    }
+
+    setFilteredData(filtered);
+  };
+
+  // MONTH CHANGE
+
+  const handleMonthChange = (e) => {
+
+    const value =
+      e.target.value;
+
+    setSelectedMonth(value);
+
+    filterMonthData(
+      data,
+      value
     );
+
+    setCurrentPage(1);
+  };
+
+  // DELETE
+
+  const handleDelete = async (
+    id
+  ) => {
+
+    const confirmDelete =
+      window.confirm(
+        "Are you sure want to delete?"
+      );
 
     if (!confirmDelete) return;
 
     try {
 
       await deleteDoc(
-        doc(db, "flat_amounts", id)
+        doc(
+          db,
+          "flat_amounts",
+          id
+        )
       );
 
-      toast.success("Deleted Successfully");
+      toast.success(
+        "Deleted Successfully"
+      );
 
       fetchData();
 
@@ -134,83 +282,130 @@ const AddAmounts = () => {
 
       console.log(error);
 
-      toast.error("Delete Failed");
+      toast.error(
+        "Delete Failed"
+      );
     }
   };
+
+  // EDIT
 
   const handleEdit = (item) => {
 
     setEditData(item);
   };
 
-  const handleUpdate = async () => {
+  // UPDATE
 
-    try {
+  const handleUpdate =
+    async () => {
 
-      const updateRef = doc(
-        db,
-        "flat_amounts",
-        editData.id
-      );
+      try {
 
-      await updateDoc(updateRef, {
-        flatNumber: editData.flatNumber,
-        ownerName: editData.ownerName,
-        billDate: editData.billDate,
-        maintenanceAmount:
-          editData.maintenanceAmount,
-        // expensesAmount:
-        //   editData.expensesAmount,
-        //    Description:
-        //   editData.Description,
-      });
+        const updateRef =
+          doc(
+            db,
+            "flat_amounts",
+            editData.id
+          );
 
-      toast.success("Updated Successfully");
+        await updateDoc(
+          updateRef,
+          {
+            flatNumber:
+              editData.flatNumber,
+            ownerName:
+              editData.ownerName,
+            billDate:
+              editData.billDate,
+            maintenanceAmount:
+              editData.maintenanceAmount,
+            Description:
+              editData.Description,
+          }
+        );
 
-      setEditData(null);
+        toast.success(
+          "Updated Successfully"
+        );
 
-      fetchData();
+        setEditData(null);
 
-    } catch (error) {
+        fetchData();
 
-      console.log(error);
+      } catch (error) {
 
-      toast.error("Update Failed");
-    }
-  };
+        console.log(error);
 
-  const filteredData = data.filter((item) =>
-    item.ownerName
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
-  );
+        toast.error(
+          "Update Failed"
+        );
+      }
+    };
+
+  // SEARCH FILTER
+
+  const searchedData =
+    filteredData.filter(
+      (item) =>
+        item.ownerName
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          ) ||
+        item.flatNumber
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+    );
+
+  // PAGINATION
 
   const lastIndex =
-    currentPage * recordsPerPage;
+    currentPage *
+    recordsPerPage;
 
   const firstIndex =
-    lastIndex - recordsPerPage;
+    lastIndex -
+    recordsPerPage;
 
   const currentRecords =
-    filteredData.slice(
+    searchedData.slice(
       firstIndex,
       lastIndex
     );
 
-  const totalPages = Math.ceil(
-    filteredData.length / recordsPerPage
-  );
+  const totalPages =
+    Math.ceil(
+      searchedData.length /
+        recordsPerPage
+    );
 
   return (
     <div className="container mt-5 mb-5">
 
-      <div className="card p-4 shadow" style={{background:"transparent",border:"1px solid #ffffff8c"}}>
+      {/* ADD FORM */}
+
+      <div
+        className="card p-4 shadow"
+        style={{
+          background:
+            "transparent",
+          border:
+            "1px solid #ffffff8c",
+        }}
+      >
 
         <h3 className="text-center mb-4 text-white">
+
           Add Flat Amounts
+
         </h3>
 
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+        >
 
           <div className="row">
 
@@ -225,8 +420,12 @@ const AddAmounts = () => {
                 type="text"
                 name="flatNumber"
                 placeholder="Flat Number"
-                value={form.flatNumber}
-                onChange={handleChange}
+                value={
+                  form.flatNumber
+                }
+                onChange={
+                  handleChange
+                }
                 required
               />
 
@@ -243,8 +442,12 @@ const AddAmounts = () => {
                 type="text"
                 name="ownerName"
                 placeholder="Owner Name"
-                value={form.ownerName}
-                onChange={handleChange}
+                value={
+                  form.ownerName
+                }
+                onChange={
+                  handleChange
+                }
                 required
               />
 
@@ -260,8 +463,12 @@ const AddAmounts = () => {
                 className="form-control"
                 type="date"
                 name="billDate"
-                value={form.billDate}
-                onChange={handleChange}
+                value={
+                  form.billDate
+                }
+                onChange={
+                  handleChange
+                }
                 required
               />
 
@@ -278,51 +485,45 @@ const AddAmounts = () => {
                 type="number"
                 name="maintenanceAmount"
                 placeholder="Maintenance"
-                value={form.maintenanceAmount}
-                onChange={handleChange}
+                value={
+                  form.maintenanceAmount
+                }
+                onChange={
+                  handleChange
+                }
                 required
               />
 
             </div>
 
-            {/* <div className="col-md-3 mb-3">
-
-              <label>
-                Expenses Amount
-              </label>
-
-              <input
-                className="form-control"
-                type="number"
-                name="expensesAmount"
-                placeholder="Expenses"
-                value={form.expensesAmount}
-                onChange={handleChange}
-                required
-              />
-
-            </div> */}
-            {/* <div className="col-md-3 mb-3">
+            <div className="col-md-12 mb-3">
 
               <label>
                 Description
               </label>
 
-            <textarea
-  className="form-control"
-  cols={1}
-  name="Description"
-                placeholder="Description for Issues"
-                value={form.Description}
-                onChange={handleChange}
-></textarea>
-            </div> */}
+              <textarea
+                className="form-control"
+                name="Description"
+                placeholder="Maintenance Description"
+                value={
+                  form.Description
+                }
+                onChange={
+                  handleChange
+                }
+              ></textarea>
+
+            </div>
+
             <div className="col-md-12 mt-3">
 
               <div className="text-center">
 
                 <button className="btn btn-success px-5">
+
                   Submit
+
                 </button>
 
               </div>
@@ -335,18 +536,51 @@ const AddAmounts = () => {
 
       </div>
 
+      {/* TABLE CARD */}
+
       <div className="card shadow p-4 mt-5">
 
-        <div className="row mb-3">
+        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
 
-          <div className="col-md-4">
+          <h4 className="fw-bold">
+
+            {selectedMonth
+              ? "Selected Month Data"
+              : `${currentMonthName}-${currentYear} Maintenance Data`}
+
+          </h4>
+
+          <div className="d-flex gap-3 flex-wrap">
+
+            {/* MONTH PICKER */}
+
+            <input
+              type="month"
+              className="form-control"
+              style={{
+                width: "220px",
+              }}
+              value={
+                selectedMonth
+              }
+              onChange={
+                handleMonthChange
+              }
+            />
+
+            {/* SEARCH */}
 
             <input
               type="text"
               className="form-control"
-              placeholder="Search Owner Name"
+              placeholder="Search Flat / Owner"
+              style={{
+                width: "220px",
+              }}
               onChange={(e) =>
-                setSearch(e.target.value)
+                setSearch(
+                  e.target.value
+                )
               }
             />
 
@@ -354,58 +588,143 @@ const AddAmounts = () => {
 
         </div>
 
+        {/* TABLE */}
+
         <div className="table-responsive">
 
-          <table className="table table-bordered table-striped">
+          <table className="table table-bordered table-striped align-middle">
 
-            <thead className="table-dark1">
+            <thead className="table-dark">
 
               <tr>
+
                 <th>S.No</th>
+
                 <th>Flat No</th>
+
                 <th>Owner Name</th>
+
                 <th>Bill Date</th>
+
+                <th>Status</th>
+
                 <th>Maintenance</th>
-                
-                
+
+                <th>Description</th>
+
                 <th>Actions</th>
+
               </tr>
 
             </thead>
 
             <tbody>
 
-              {
-                currentRecords.length > 0 ? (
+              {currentRecords.length >
+              0 ? (
 
-                  currentRecords.map(
-                    (item, index) => (
+                currentRecords.map(
+                  (
+                    item,
+                    index
+                  ) => {
 
-                      <tr key={item.id}>
+                    const amount =
+                      Number(
+                        item.maintenanceAmount
+                      );
+
+                    return (
+
+                      <tr
+                        key={
+                          item.id
+                        }
+                      >
 
                         <td>
-                          {firstIndex + index + 1}
+                          {firstIndex +
+                            index +
+                            1}
                         </td>
 
                         <td>
-                          {item.flatNumber}
+                          {
+                            item.flatNumber
+                          }
                         </td>
 
                         <td>
-                          {item.ownerName}
+                          {
+                            item.ownerName
+                          }
                         </td>
 
                         <td>
-                          {item.billDate}
+                          {
+                            item.billDate
+                          }
+                        </td>
+
+                        {/* STATUS */}
+
+                        <td>
+
+                          {amount ===
+                          0 ? (
+
+                            <span className="badge bg-danger">
+
+                              Pending
+
+                            </span>
+
+                          ) : (
+
+                            <span className="badge bg-success">
+
+                              Paid
+
+                            </span>
+
+                          )}
+
+                        </td>
+
+                        {/* AMOUNT */}
+
+                        <td>
+
+                          {amount ===
+                          0 ? (
+
+                            <span className="text-danger fw-bold">
+
+                              Pending
+
+                            </span>
+
+                          ) : (
+
+                            <span className="text-success fw-bold">
+
+                              ₹
+                              {
+                                item.maintenanceAmount
+                              }
+
+                            </span>
+
+                          )}
+
                         </td>
 
                         <td>
-                          ₹
-                          {item.maintenanceAmount}
+                          {
+                            item.Description
+                          }
                         </td>
 
-                       
-                      
                         <td>
 
                           <button
@@ -413,40 +732,52 @@ const AddAmounts = () => {
                             data-bs-toggle="modal"
                             data-bs-target="#editModal"
                             onClick={() =>
-                              handleEdit(item)
+                              handleEdit(
+                                item
+                              )
                             }
                           >
+
                             Edit
+
                           </button>
 
                           <button
                             className="btn btn-danger btn-sm"
                             onClick={() =>
-                              handleDelete(item.id)
+                              handleDelete(
+                                item.id
+                              )
                             }
                           >
+
                             Delete
+
                           </button>
 
                         </td>
 
                       </tr>
-                    )
-                  )
-                ) : (
-
-                  <tr>
-
-                    <td
-                      colSpan="7"
-                      className="text-center"
-                    >
-                      No Data Found
-                    </td>
-
-                  </tr>
+                    );
+                  }
                 )
-              }
+
+              ) : (
+
+                <tr>
+
+                  <td
+                    colSpan="8"
+                    className="text-center text-danger fw-bold"
+                  >
+
+                    No Data Found
+
+                  </td>
+
+                </tr>
+
+              )}
 
             </tbody>
 
@@ -454,32 +785,43 @@ const AddAmounts = () => {
 
         </div>
 
-        <div className="d-flex justify-content-center mt-3">
+        {/* PAGINATION */}
 
-          {
-            [...Array(totalPages)].map(
-              (_, index) => (
+        <div className="d-flex justify-content-center mt-4 flex-wrap">
 
-                <button
-                  key={index}
-                  className={`btn mx-1 ${
-                    currentPage === index + 1
-                      ? "btn-primary"
-                      : "btn-outline-primary"
-                  }`}
-                  onClick={() =>
-                    setCurrentPage(index + 1)
-                  }
-                >
-                  {index + 1}
-                </button>
-              )
+          {[
+            ...Array(
+              totalPages
+            ),
+          ].map(
+            (_, index) => (
+
+              <button
+                key={index}
+                className={`btn mx-1 mb-2 ${
+                  currentPage ===
+                  index + 1
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() =>
+                  setCurrentPage(
+                    index + 1
+                  )
+                }
+              >
+
+                {index + 1}
+
+              </button>
             )
-          }
+          )}
 
         </div>
 
       </div>
+
+      {/* EDIT MODAL */}
 
       <div
         className="modal fade"
@@ -494,7 +836,9 @@ const AddAmounts = () => {
             <div className="modal-header">
 
               <h5 className="modal-title">
+
                 Edit Amount Details
+
               </h5>
 
               <button
@@ -507,108 +851,127 @@ const AddAmounts = () => {
 
             <div className="modal-body">
 
-              {
-                editData && (
+              {editData && (
 
-                  <div className="row">
+                <div className="row">
 
-                    <div className="col-md-6 mb-3">
+                  <div className="col-md-6 mb-3">
 
-                      <label>
-                        Flat Number
-                      </label>
+                    <label>
+                      Flat Number
+                    </label>
 
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={
-                          editData.flatNumber
-                        }
-                        onChange={(e) =>
-                          setEditData({
-                            ...editData,
-                            flatNumber:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-
-                      <label>
-                        Owner Name
-                      </label>
-
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={
-                          editData.ownerName
-                        }
-                        onChange={(e) =>
-                          setEditData({
-                            ...editData,
-                            ownerName:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-
-                      <label>
-                        Bill Date
-                      </label>
-
-                      <input
-                        type="date"
-                        className="form-control"
-                        value={
-                          editData.billDate
-                        }
-                        onChange={(e) =>
-                          setEditData({
-                            ...editData,
-                            billDate:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-
-                      <label>
-                        Maintenance Amount
-                      </label>
-
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={
-                          editData.maintenanceAmount
-                        }
-                        onChange={(e) =>
-                          setEditData({
-                            ...editData,
-                            maintenanceAmount:
-                              e.target.value,
-                          })
-                        }
-                      />
-
-                    </div>
-
-                 
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={
+                        editData.flatNumber
+                      }
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          flatNumber:
+                            e.target.value,
+                        })
+                      }
+                    />
 
                   </div>
-                )
-              }
+
+                  <div className="col-md-6 mb-3">
+
+                    <label>
+                      Owner Name
+                    </label>
+
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={
+                        editData.ownerName
+                      }
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          ownerName:
+                            e.target.value,
+                        })
+                      }
+                    />
+
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+
+                    <label>
+                      Bill Date
+                    </label>
+
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={
+                        editData.billDate
+                      }
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          billDate:
+                            e.target.value,
+                        })
+                      }
+                    />
+
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+
+                    <label>
+                      Maintenance Amount
+                    </label>
+
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={
+                        editData.maintenanceAmount
+                      }
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          maintenanceAmount:
+                            e.target.value,
+                        })
+                      }
+                    />
+
+                  </div>
+
+                  <div className="col-md-12 mb-3">
+
+                    <label>
+                      Description
+                    </label>
+
+                    <textarea
+                      className="form-control"
+                      value={
+                        editData.Description
+                      }
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          Description:
+                            e.target.value,
+                        })
+                      }
+                    ></textarea>
+
+                  </div>
+
+                </div>
+
+              )}
 
             </div>
 
@@ -618,15 +981,21 @@ const AddAmounts = () => {
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
+
                 Close
+
               </button>
 
               <button
                 className="btn btn-success"
-                onClick={handleUpdate}
+                onClick={
+                  handleUpdate
+                }
                 data-bs-dismiss="modal"
               >
+
                 Update
+
               </button>
 
             </div>

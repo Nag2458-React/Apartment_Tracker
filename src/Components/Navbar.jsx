@@ -52,7 +52,11 @@ const Navbar = ({ userRole, setUserRole }) => {
               </li>
             </>
           )}
-
+   <li className="nav-item">
+            <Link className="nav-link" to="/remarks">
+              <FaTachometerAlt /> Suggestions / Remarks
+            </Link>
+          </li>
           <li className="nav-item">
             <button
               className="btn btn-danger btn-sm ms-3 log"

@@ -8,7 +8,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db } from "../Firebase";
 
 import {
   FaArrowRight,
@@ -52,20 +52,21 @@ const Dashboard = () => {
     setCurrentMonthPaidFlats,
   ] = useState(0);
 
+  const [
+    remarksData,
+    setRemarksData,
+  ] = useState([]);
+
   const totalFlats = 10;
-
-  const navigateMonth = (
-    path
-  ) => {
-
-    navigate(path);
-
-  };
-
-  // MONTH NAME
 
   const currentDate =
     new Date();
+
+  const currentMonth =
+    currentDate.getMonth() + 1;
+
+  const currentYear =
+    currentDate.getFullYear();
 
   const monthName =
     currentDate.toLocaleString(
@@ -75,8 +76,15 @@ const Dashboard = () => {
       }
     );
 
-  const currentYear =
-    currentDate.getFullYear();
+  // NAVIGATION
+
+  const navigateMonth = (
+    path
+  ) => {
+
+    navigate(path);
+
+  };
 
   // FETCH DATA
 
@@ -84,7 +92,7 @@ const Dashboard = () => {
 
     try {
 
-      // MAINTENANCE DATA
+      // MAINTENANCE
 
       const maintenanceSnapshot =
         await getDocs(
@@ -94,13 +102,23 @@ const Dashboard = () => {
           )
         );
 
-      // EXPENSE DATA
+      // EXPENSES
 
       const expenseSnapshot =
         await getDocs(
           collection(
             db,
             "expenses"
+          )
+        );
+
+      // REMARKS
+
+      const remarksSnapshot =
+        await getDocs(
+          collection(
+            db,
+            "remarks"
           )
         );
 
@@ -118,8 +136,7 @@ const Dashboard = () => {
 
       let paidFlats = 0;
 
-      const currentMonth =
-        currentDate.getMonth() + 1;
+      let remarksTemp = [];
 
       const previousMonth =
         currentMonth === 1
@@ -131,7 +148,7 @@ const Dashboard = () => {
           ? currentYear - 1
           : currentYear;
 
-      // RECEIVED AMOUNTS
+      // RECEIVED DATA
 
       maintenanceSnapshot.forEach(
         (doc) => {
@@ -173,7 +190,11 @@ const Dashboard = () => {
               currentReceived +=
                 amount;
 
-              paidFlats++;
+              if (amount > 0) {
+
+                paidFlats++;
+
+              }
 
             }
 
@@ -190,7 +211,9 @@ const Dashboard = () => {
                 amount;
 
             }
+
           }
+
         }
       );
 
@@ -251,7 +274,50 @@ const Dashboard = () => {
                 amount;
 
             }
+
           }
+
+        }
+      );
+
+      // REMARKS
+
+      remarksSnapshot.forEach(
+        (doc) => {
+
+          const item = {
+            id: doc.id,
+            ...doc.data(),
+          };
+
+          if (item.billDate) {
+
+            const billDate =
+              new Date(
+                item.billDate
+              );
+
+            const billMonth =
+              billDate.getMonth() + 1;
+
+            const billYear =
+              billDate.getFullYear();
+
+            // ONLY CURRENT MONTH REMARKS
+
+            if (
+              billMonth ===
+                currentMonth &&
+              billYear ===
+                currentYear
+            ) {
+
+              remarksTemp.push(item);
+
+            }
+
+          }
+
         }
       );
 
@@ -276,11 +342,16 @@ const Dashboard = () => {
       );
 
       setAllMonthsBalance(
-        allReceived - allExpenses
+        allReceived -
+          allExpenses
       );
 
       setCurrentMonthPaidFlats(
         paidFlats
+      );
+
+      setRemarksData(
+        remarksTemp
       );
 
     } catch (error) {
@@ -288,6 +359,7 @@ const Dashboard = () => {
       console.log(error);
 
     }
+
   };
 
   useEffect(() => {
@@ -302,18 +374,26 @@ const Dashboard = () => {
 
       <div className="row g-4">
 
-        {/* CURRENT MONTH PAID FLATS */}
+        {/* PAID FLATS */}
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-dark text-white">
+          <div className="card border-0 shadow-lg rounded-4 p-4 bg-white text-black">
 
             <div className="d-flex justify-content-between align-items-center">
 
               <div>
 
                 <h6>
-                  {monthName} - {currentYear} Paid Flats
+
+                  {monthName}
+                  {" "}
+                  -
+                  {" "}
+                  {currentYear}
+                  {" "}
+                  Paid Flats
+
                 </h6>
 
                 <h2 className="fw-bold">
@@ -321,11 +401,9 @@ const Dashboard = () => {
                   {
                     currentMonthPaidFlats
                   }
-
                   {" "}
                   /
                   {" "}
-
                   {totalFlats}
 
                 </h2>
@@ -350,7 +428,7 @@ const Dashboard = () => {
 
         </div>
 
-        {/* CURRENT MONTH RECEIVED */}
+        {/* RECEIVED */}
 
         <div className="col-md-4">
 
@@ -362,7 +440,13 @@ const Dashboard = () => {
 
                 <h6>
 
-                  {monthName} - {currentYear} Received Amount
+                  {monthName}
+                  {" "}
+                  -
+                  {" "}
+                  {currentYear}
+                  {" "}
+                  Received Amount
 
                 </h6>
 
@@ -395,7 +479,7 @@ const Dashboard = () => {
 
         </div>
 
-        {/* CURRENT MONTH EXPENSES */}
+        {/* EXPENSES */}
 
         <div className="col-md-4">
 
@@ -413,7 +497,13 @@ const Dashboard = () => {
 
                 <h6>
 
-                  {monthName} - {currentYear} Expenses
+                  {monthName}
+                  {" "}
+                  -
+                  {" "}
+                  {currentYear}
+                  {" "}
+                  Expenses
 
                 </h6>
 
@@ -446,7 +536,7 @@ const Dashboard = () => {
 
         </div>
 
-        {/* CURRENT MONTH BALANCE */}
+        {/* CURRENT BALANCE */}
 
         <div className="col-md-4">
 
@@ -458,7 +548,13 @@ const Dashboard = () => {
 
                 <h6>
 
-                  {monthName} - {currentYear} Remaining Balance
+                  {monthName}
+                  {" "}
+                  -
+                  {" "}
+                  {currentYear}
+                  {" "}
+                  Remaining Balance
 
                 </h6>
 
@@ -483,7 +579,7 @@ const Dashboard = () => {
 
         </div>
 
-        {/* PREVIOUS MONTH BALANCE */}
+        {/* PREVIOUS BALANCE */}
 
         <div className="col-md-4">
 
@@ -557,10 +653,82 @@ const Dashboard = () => {
 
         </div>
 
+        {/* REMARKS COUNT BOX */}
+
+        <div className="col-md-4">
+
+          <div className="card border-0 shadow-lg rounded-4 p-4 bg-dark text-white">
+
+            <div className="d-flex justify-content-between align-items-center mb-3">
+
+              <h5 className="mb-0">
+
+                {monthName}
+                {" "}
+                -
+                {" "}
+                {currentYear}
+                {" "}
+                Suggestions
+
+              </h5>
+
+              <FaArrowRight
+                size={30}
+                style={{
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  navigate(
+                    "/remarks-list"
+                  )
+                }
+              />
+
+            </div>
+
+            {
+              remarksData.length > 0 ? (
+
+                <div className="text-center">
+
+                  <h1 className="fw-bold text-warning">
+
+                    {
+                      remarksData.length
+                    }
+
+                  </h1>
+
+                  <h6 className="text-white">
+
+                    Remarks This Month
+
+                  </h6>
+
+                </div>
+
+              ) : (
+
+                <h6 className="text-center text-danger">
+
+                  No Remarks Found
+
+                </h6>
+
+              )
+            }
+
+          </div>
+
+        </div>
+
       </div>
 
     </div>
+
   );
+
 };
 
 export default Dashboard;

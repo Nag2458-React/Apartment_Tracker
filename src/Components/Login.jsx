@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 import { toast } from "react-toastify";
 
-import { db } from "../firebase";
+import { db } from "../Firebase";
 
 const Login = ({ setUserRole }) => {
 

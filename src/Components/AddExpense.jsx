@@ -12,7 +12,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db } from "../Firebase";
 
 import { toast } from "react-toastify";
 
