@@ -202,9 +202,9 @@ const AddExpense = () => {
   return (
     <div className="container mt-5 mb-5">
 
-      <div className="card shadow p-4" style={{background:"transparent",border:"1px solid #ffffff8c"}}>
+      <div className="card shadow p-4">
 
-        <h3 className="text-center mb-4 text-white">
+        <h3 className="text-center mb-4 text-black">
           Add Expense
         </h3>
 

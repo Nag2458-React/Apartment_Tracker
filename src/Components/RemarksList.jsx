@@ -33,12 +33,10 @@ export const RemarksList = () => {
     new Date();
 
   const currentMonth =
-    currentDate
-      .getMonth() + 1;
+    currentDate.getMonth() + 1;
 
   const currentYear =
-    currentDate
-      .getFullYear();
+    currentDate.getFullYear();
 
   // FETCH REMARKS
 
@@ -72,15 +70,15 @@ export const RemarksList = () => {
           }
         );
 
-        // SORT LATEST FIRST
+        // SORT FLAT NUMBER ORDER
 
         remarksTemp.sort(
           (a, b) =>
-            new Date(
-              b.billDate
+            Number(
+              a.flatNumber
             ) -
-            new Date(
-              a.billDate
+            Number(
+              b.flatNumber
             )
         );
 
@@ -93,6 +91,11 @@ export const RemarksList = () => {
         const currentMonthData =
           remarksTemp.filter(
             (item) => {
+
+              if (
+                !item.billDate
+              )
+                return false;
 
               const billDate =
                 new Date(
@@ -134,13 +137,18 @@ export const RemarksList = () => {
       value
     );
 
-    // SHOW CURRENT MONTH IF EMPTY
+    // CURRENT MONTH DATA
 
     if (!value) {
 
       const currentMonthData =
         remarksData.filter(
           (item) => {
+
+            if (
+              !item.billDate
+            )
+              return false;
 
             const billDate =
               new Date(
@@ -176,6 +184,11 @@ export const RemarksList = () => {
       remarksData.filter(
         (item) => {
 
+          if (
+            !item.billDate
+          )
+            return false;
+
           const billDate =
             new Date(
               item.billDate
@@ -190,6 +203,18 @@ export const RemarksList = () => {
 
         }
       );
+
+    // SORT 101,102,103...
+
+    filtered.sort(
+      (a, b) =>
+        Number(
+          a.flatNumber
+        ) -
+        Number(
+          b.flatNumber
+        )
+    );
 
     setFilteredData(
       filtered
@@ -209,21 +234,43 @@ export const RemarksList = () => {
 
       <div
         className="card shadow-lg border-0 rounded-4 p-4"
-        style={{
-          background:
-            "rgba(0,0,0,0.7)",
-        }}
       >
+
+        {/* HEADER */}
 
         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
 
-          <h3 className="text-white">
+          <div>
 
-            Suggestions / Remarks Status
+            <h3 className="text-black fw-bold">
 
-          </h3>
+              Suggestions / Remarks Status
+
+            </h3>
+
+            <p className="mb-0 text-muted">
+
+              Total Remarks :
+              {" "}
+              <span className="fw-bold text-primary">
+
+                {
+                  filteredData.length
+                }
+
+              </span>
+
+            </p>
+
+          </div>
 
           <div>
+
+            <label className="fw-bold mb-2">
+
+              Select Month
+
+            </label>
 
             <input
               type="month"
@@ -240,11 +287,13 @@ export const RemarksList = () => {
 
         </div>
 
-        <div className="table-responsive">
+        {/* TABLE */}
 
-          <table className="table table-bordered table-hover text-center align-middle">
+        <div className="table-responsive paid">
 
-            <thead className="table-dark">
+          <table className="table table-bordered table-hover text-center table-striped align-middle">
+
+            <thead className="table-dark1">
 
               <tr>
 
@@ -302,7 +351,7 @@ export const RemarksList = () => {
 
                         </td>
 
-                        <td>
+                        <td className="fw-bold">
 
                           {
                             item.flatNumber
@@ -364,7 +413,7 @@ export const RemarksList = () => {
 
                     <td
                       colSpan={6}
-                      className="text-danger fw-bold"
+                      className="text-danger fw-bold text-center"
                     >
 
                       No Remarks Found
@@ -377,6 +426,40 @@ export const RemarksList = () => {
               }
 
             </tbody>
+
+            {/* TABLE FOOTER */}
+
+            {
+              filteredData.length >
+              0 && (
+
+                <tfoot className="table-dark1">
+
+                  <tr>
+
+                    <th
+                      colSpan={5}
+                      className="text-end"
+                    >
+
+                      Total Remarks
+
+                    </th>
+
+                    <th className="text-primary">
+
+                      {
+                        filteredData.length
+                      }
+
+                    </th>
+
+                  </tr>
+
+                </tfoot>
+
+              )
+            }
 
           </table>
 

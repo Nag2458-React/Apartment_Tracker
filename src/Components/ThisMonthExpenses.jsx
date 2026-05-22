@@ -4,6 +4,10 @@ import React, {
 } from "react";
 
 import {
+  useNavigate,
+} from "react-router-dom";
+
+import {
   collection,
   getDocs,
 } from "firebase/firestore";
@@ -18,90 +22,132 @@ const ThisMonthExpenses = () => {
   const [receivedData, setReceivedData] =
     useState([]);
 
-  const [filteredExpenses, setFilteredExpenses] =
-    useState([]);
+  const [
+    filteredExpenses,
+    setFilteredExpenses,
+  ] = useState([]);
 
-  const [selectedMonth, setSelectedMonth] =
-    useState("");
+  const [
+    selectedMonth,
+    setSelectedMonth,
+  ] = useState("");
 
   // TOTALS
 
-  const [totalExpenses, setTotalExpenses] =
-    useState(0);
+  const [
+    totalExpenses,
+    setTotalExpenses,
+  ] = useState(0);
 
-  const [totalReceived, setTotalReceived] =
-    useState(0);
+  const [
+    totalReceived,
+    setTotalReceived,
+  ] = useState(0);
 
-  const [remainingBalance, setRemainingBalance] =
-    useState(0);
+  const [
+    remainingBalance,
+    setRemainingBalance,
+  ] = useState(0);
+
+  // MOVE THIS HERE
+
+  const navigate =
+    useNavigate();
 
   // FETCH DATA
 
-  const fetchData = async () => {
+  const fetchData =
+    async () => {
 
-    try {
+      try {
 
-      // EXPENSES COLLECTION
+        // EXPENSES COLLECTION
 
-      const expenseSnapshot =
-        await getDocs(
-          collection(db, "expenses")
+        const expenseSnapshot =
+          await getDocs(
+            collection(
+              db,
+              "expenses"
+            )
+          );
+
+        // RECEIVED COLLECTION
+
+        const receivedSnapshot =
+          await getDocs(
+            collection(
+              db,
+              "flat_amounts"
+            )
+          );
+
+        let expenseTemp = [];
+
+        let receivedTemp = [];
+
+        // EXPENSE DATA
+
+        expenseSnapshot.forEach(
+          (doc) => {
+
+            expenseTemp.push({
+              id: doc.id,
+              ...doc.data(),
+            });
+
+          }
         );
 
-      // RECEIVED COLLECTION
+        // SORT DATE LATEST FIRST
 
-      const receivedSnapshot =
-        await getDocs(
-          collection(
-            db,
-            "flat_amounts"
-          )
+        expenseTemp.sort(
+          (a, b) =>
+            new Date(
+              b.billDate
+            ) -
+            new Date(
+              a.billDate
+            )
         );
 
-      let expenseTemp = [];
+        // RECEIVED DATA
 
-      let receivedTemp = [];
+        receivedSnapshot.forEach(
+          (doc) => {
 
-      // EXPENSE DATA
+            receivedTemp.push({
+              id: doc.id,
+              ...doc.data(),
+            });
 
-      expenseSnapshot.forEach((doc) => {
+          }
+        );
 
-        expenseTemp.push({
-          id: doc.id,
-          ...doc.data(),
-        });
+        setExpenseData(
+          expenseTemp
+        );
 
-      });
+        setReceivedData(
+          receivedTemp
+        );
 
-      // RECEIVED DATA
+        // DEFAULT CURRENT MONTH
 
-      receivedSnapshot.forEach((doc) => {
+        filterMonthData(
+          expenseTemp,
+          receivedTemp,
+          ""
+        );
 
-        receivedTemp.push({
-          id: doc.id,
-          ...doc.data(),
-        });
+      } catch (error) {
 
-      });
+        console.log(
+          error
+        );
 
-      setExpenseData(expenseTemp);
+      }
 
-      setReceivedData(receivedTemp);
-
-      // DEFAULT CURRENT MONTH DATA
-
-      filterMonthData(
-        expenseTemp,
-        receivedTemp,
-        ""
-      );
-
-    } catch (error) {
-
-      console.log(error);
-
-    }
-  };
+    };
 
   useEffect(() => {
 
@@ -111,254 +157,185 @@ const ThisMonthExpenses = () => {
 
   // FILTER MONTH DATA
 
-  const filterMonthData = (
-    expenses,
-    received,
-    monthValue
-  ) => {
+  const filterMonthData =
+    (
+      expenses,
+      received,
+      monthValue
+    ) => {
 
-    const currentDate =
-      new Date();
+      const currentDate =
+        new Date();
 
-    let selectedYear;
+      let selectedYear;
 
-    let selectedMonthNumber;
+      let selectedMonthNumber;
 
-    // SELECT MONTH
+      // SELECT MONTH
 
-    if (monthValue) {
+      if (monthValue) {
 
-      const [year, month] =
-        monthValue.split("-");
+        const [
+          year,
+          month,
+        ] =
+          monthValue.split(
+            "-"
+          );
 
-      selectedYear =
-        Number(year);
+        selectedYear =
+          Number(
+            year
+          );
 
-      selectedMonthNumber =
-        Number(month);
+        selectedMonthNumber =
+          Number(
+            month
+          );
 
-    } else {
+      } else {
 
-      // CURRENT MONTH
+        // CURRENT MONTH
 
-      selectedYear =
-        currentDate.getFullYear();
+        selectedYear =
+          currentDate.getFullYear();
 
-      selectedMonthNumber =
-        currentDate.getMonth() + 1;
+        selectedMonthNumber =
+          currentDate.getMonth() + 1;
 
-    }
+      }
 
-    // CURRENT MONTH EXPENSES
+      // CURRENT MONTH EXPENSES
 
-    const currentMonthExpenses =
-      expenses.filter((item) => {
+      const currentMonthExpenses =
+        expenses.filter(
+          (item) => {
 
-        if (!item.billDate)
-          return false;
+            if (
+              !item.billDate
+            )
+              return false;
 
-        const billDate =
-          new Date(item.billDate);
+            const billDate =
+              new Date(
+                item.billDate
+              );
 
-        return (
-          billDate.getFullYear() ===
-            selectedYear &&
-          billDate.getMonth() + 1 ===
-            selectedMonthNumber
+            return (
+              billDate.getFullYear() ===
+                selectedYear &&
+              billDate.getMonth() + 1 ===
+                selectedMonthNumber
+            );
+
+          }
         );
 
-      });
+      // CURRENT MONTH RECEIVED
 
-    // CURRENT MONTH RECEIVED
+      const currentMonthReceived =
+        received.filter(
+          (item) => {
 
-    const currentMonthReceived =
-      received.filter((item) => {
+            if (
+              !item.billDate
+            )
+              return false;
 
-        if (!item.billDate)
-          return false;
+            const billDate =
+              new Date(
+                item.billDate
+              );
 
-        const billDate =
-          new Date(item.billDate);
+            return (
+              billDate.getFullYear() ===
+                selectedYear &&
+              billDate.getMonth() + 1 ===
+                selectedMonthNumber
+            );
 
-        return (
-          billDate.getFullYear() ===
-            selectedYear &&
-          billDate.getMonth() + 1 ===
-            selectedMonthNumber
+          }
         );
 
-      });
+      // TOTAL EXPENSES
 
-    // CURRENT MONTH TOTAL EXPENSES
+      const currentExpenseTotal =
+        currentMonthExpenses.reduce(
+          (
+            total,
+            item
+          ) =>
+            total +
+            Number(
+              item.maintenanceAmount || 0
+            ),
+          0
+        );
 
-    const currentExpenseTotal =
-      currentMonthExpenses.reduce(
-        (total, item) =>
-          total +
-          Number(
-            item.maintenanceAmount || 0
-          ),
-        0
+      // TOTAL RECEIVED
+
+      const currentReceivedTotal =
+        currentMonthReceived.reduce(
+          (
+            total,
+            item
+          ) =>
+            total +
+            Number(
+              item.maintenanceAmount || 0
+            ),
+          0
+        );
+
+      // BALANCE
+
+      const currentBalance =
+        currentReceivedTotal -
+        currentExpenseTotal;
+
+      // SET VALUES
+
+      setFilteredExpenses(
+        currentMonthExpenses
       );
 
-    // CURRENT MONTH TOTAL RECEIVED
-
-    const currentReceivedTotal =
-      currentMonthReceived.reduce(
-        (total, item) =>
-          total +
-          Number(
-            item.maintenanceAmount || 0
-          ),
-        0
+      setTotalExpenses(
+        currentExpenseTotal
       );
 
-    // CURRENT MONTH BALANCE
+      setTotalReceived(
+        currentReceivedTotal
+      );
 
-    const currentBalance =
-      currentReceivedTotal -
-      currentExpenseTotal;
+      setRemainingBalance(
+        currentBalance
+      );
 
-    // SET VALUES
-
-    setFilteredExpenses(
-      currentMonthExpenses
-    );
-
-    setTotalExpenses(
-      currentExpenseTotal
-    );
-
-    setTotalReceived(
-      currentReceivedTotal
-    );
-
-    setRemainingBalance(
-      currentBalance
-    );
-  };
+    };
 
   // MONTH CHANGE
 
-  const handleMonthChange = (e) => {
+  const handleMonthChange =
+    (e) => {
 
-    const value =
-      e.target.value;
+      const value =
+        e.target.value;
 
-    setSelectedMonth(value);
+      setSelectedMonth(
+        value
+      );
 
-    filterMonthData(
-      expenseData,
-      receivedData,
-      value
-    );
-  };
+      filterMonthData(
+        expenseData,
+        receivedData,
+        value
+      );
+
+    };
 
   return (
+
     <div className="container mt-5 mb-5 month">
-
-      {/* TOP CARDS */}
-
-      <div className="row g-4 mb-4">
-
-        {/* CURRENT MONTH EXPENSES */}
-
-        <div className="col-md-4">
-
-          <div className="card border-0 shadow-lg rounded-4 bg-danger text-white">
-
-            <div className="card-body text-center py-4">
-
-              <h5 className="fw-light">
-                Current Month Expenses
-              </h5>
-
-              <h2 className="fw-bold">
-                ₹ {totalExpenses}
-              </h2>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* CURRENT MONTH RECEIVED */}
-
-        <div className="col-md-4">
-
-          <div className="card border-0 shadow-lg rounded-4 bg-success text-white">
-
-            <div className="card-body text-center py-4">
-
-              <h5 className="fw-light">
-                Current Month Received
-              </h5>
-
-              <h2 className="fw-bold">
-                ₹ {totalReceived}
-              </h2>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* CURRENT MONTH BALANCE */}
-
-        <div className="col-md-4">
-
-          <div className="card border-0 shadow-lg rounded-4 bg-primary text-white">
-
-            <div className="card-body text-center py-4">
-
-              <h5 className="fw-light">
-                Current Month Balance
-              </h5>
-
-              <h2 className="fw-bold">
-                ₹ {remainingBalance}
-              </h2>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* MONTH FILTER */}
-
-      <div className=" border-0 mb-4">
-
-        <div className="">
-
-          <div className="row">
-
-            <div className="col-md-4">
-
-              <label className="fw-bold mb-2 text-white">
-                Select Month
-              </label>
-
-              <input
-                type="month"
-                className="form-control"
-                value={selectedMonth}
-                onChange={
-                  handleMonthChange
-                }
-              />
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
 
       {/* EXPENSE TABLE */}
 
@@ -366,13 +343,148 @@ const ThisMonthExpenses = () => {
 
         <div className="card-body">
 
-          <h3 className="mb-4">
+          <div
+            className="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3"
+          >
 
-            Current Month Expense Details
+            <h3 className="mb-0">
 
-          </h3>
+              Current Month Expense Details
 
-          <div className="table-responsive">
+            </h3>
+
+            <div
+              className="d-flex align-items-end gap-3 flex-wrap"
+            >
+
+              <div>
+
+                <label className="fw-bold mb-2 text-black">
+
+                  Select Month
+
+                </label>
+
+                <input
+                  type="month"
+                  className="form-control"
+                  value={
+                    selectedMonth
+                  }
+                  onChange={
+                    handleMonthChange
+                  }
+                />
+
+              </div>
+
+              <button
+                className="btn btn-dark"
+                onClick={() =>
+                  navigate(
+                    "/dashboard"
+                  )
+                }
+              >
+
+                ← Back
+
+              </button>
+
+            </div>
+
+          </div>
+
+          {/* TOTALS */}
+
+          {/* <div className="row g-4 mb-4">
+
+            <div className="col-md-4">
+
+              <div className="card bg-danger text-white border-0 shadow">
+
+                <div className="card-body text-center">
+
+                  <h6>
+
+                    Total Expenses
+
+                  </h6>
+
+                  <h3>
+
+                    ₹
+                    {
+                      totalExpenses
+                    }
+
+                  </h3>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <div className="col-md-4">
+
+              <div className="card bg-success text-white border-0 shadow">
+
+                <div className="card-body text-center">
+
+                  <h6>
+
+                    Total Received
+
+                  </h6>
+
+                  <h3>
+
+                    ₹
+                    {
+                      totalReceived
+                    }
+
+                  </h3>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <div className="col-md-4">
+
+              <div className="card bg-primary text-white border-0 shadow">
+
+                <div className="card-body text-center">
+
+                  <h6>
+
+                    Remaining Balance
+
+                  </h6>
+
+                  <h3>
+
+                    ₹
+                    {
+                      remainingBalance
+                    }
+
+                  </h3>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div> */}
+
+          {/* TABLE */}
+
+          <div className="table-responsive exp">
 
             <table className="table table-bordered table-hover align-middle table-striped">
 
@@ -380,15 +492,21 @@ const ThisMonthExpenses = () => {
 
                 <tr>
 
-                  <th>S.No</th>
+                  <th>
+                    S.No
+                  </th>
 
-                  <th>Date</th>
+                  <th>
+                    Date
+                  </th>
 
-                  <th>Expense Title</th>
+                  <th>
+                    Expense Title
+                  </th>
 
-                
-
-                  <th>Amount</th>
+                  <th>
+                    Amount
+                  </th>
 
                 </tr>
 
@@ -397,7 +515,8 @@ const ThisMonthExpenses = () => {
               <tbody>
 
                 {
-                  filteredExpenses.length > 0 ? (
+                  filteredExpenses.length >
+                  0 ? (
 
                     filteredExpenses.map(
                       (
@@ -406,36 +525,46 @@ const ThisMonthExpenses = () => {
                       ) => (
 
                         <tr
-                          key={item.id}
+                          key={
+                            item.id
+                          }
                         >
 
                           <td>
-                            {index + 1}
+
+                            {
+                              index + 1
+                            }
+
                           </td>
 
                           <td>
+
                             {
                               item.billDate
                             }
+
                           </td>
 
                           <td>
+
                             {
                               item.title
                             }
-                          </td>
 
-                         
+                          </td>
 
                           <td className="fw-bold text-danger">
 
-                            ₹ {
+                            ₹
+                            {
                               item.maintenanceAmount
                             }
 
                           </td>
 
                         </tr>
+
                       )
                     )
 
@@ -444,7 +573,7 @@ const ThisMonthExpenses = () => {
                     <tr>
 
                       <td
-                        colSpan="5"
+                        colSpan="4"
                         className="text-center text-danger fw-bold"
                       >
 
@@ -468,7 +597,9 @@ const ThisMonthExpenses = () => {
       </div>
 
     </div>
+
   );
+
 };
 
 export default ThisMonthExpenses;

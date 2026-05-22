@@ -389,15 +389,10 @@ const AddAmounts = () => {
 
       <div
         className="card p-4 shadow"
-        style={{
-          background:
-            "transparent",
-          border:
-            "1px solid #ffffff8c",
-        }}
+     
       >
 
-        <h3 className="text-center mb-4 text-white">
+        <h3 className="text-center mb-4 text-black">
 
           Add Flat Amounts
 
@@ -484,7 +479,7 @@ const AddAmounts = () => {
                 className="form-control"
                 type="number"
                 name="maintenanceAmount"
-                placeholder="Maintenance"
+                placeholder="Leave '0' Pending"
                 value={
                   form.maintenanceAmount
                 }
@@ -594,7 +589,7 @@ const AddAmounts = () => {
 
           <table className="table table-bordered table-striped align-middle">
 
-            <thead className="table-dark">
+            <thead className="table-dark1">
 
               <tr>
 

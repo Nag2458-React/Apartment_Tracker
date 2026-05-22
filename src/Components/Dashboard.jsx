@@ -16,9 +16,35 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
+// ANIMATION CSS
+
+const animationStyle = `
+.dashboard-card {
+  transition: all 0.5s ease;
+  animation: slideLeftRight 1s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+@keyframes slideLeftRight {
+  0% {
+    opacity: 0;
+    transform: translateX(-80px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+`;
+
 const Dashboard = () => {
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
   // STATES
 
@@ -88,279 +114,301 @@ const Dashboard = () => {
 
   // FETCH DATA
 
-  const fetchData = async () => {
+  const fetchData =
+    async () => {
 
-    try {
+      try {
 
-      // MAINTENANCE
+        // MAINTENANCE
 
-      const maintenanceSnapshot =
-        await getDocs(
-          collection(
-            db,
-            "flat_amounts"
-          )
-        );
+        const maintenanceSnapshot =
+          await getDocs(
+            collection(
+              db,
+              "flat_amounts"
+            )
+          );
 
-      // EXPENSES
+        // EXPENSES
 
-      const expenseSnapshot =
-        await getDocs(
-          collection(
-            db,
-            "expenses"
-          )
-        );
+        const expenseSnapshot =
+          await getDocs(
+            collection(
+              db,
+              "expenses"
+            )
+          );
 
-      // REMARKS
+        // REMARKS
 
-      const remarksSnapshot =
-        await getDocs(
-          collection(
-            db,
-            "remarks"
-          )
-        );
+        const remarksSnapshot =
+          await getDocs(
+            collection(
+              db,
+              "remarks"
+            )
+          );
 
-      let currentReceived = 0;
+        let currentReceived =
+          0;
 
-      let currentExpense = 0;
+        let currentExpense =
+          0;
 
-      let allReceived = 0;
+        let allReceived =
+          0;
 
-      let allExpenses = 0;
+        let allExpenses =
+          0;
 
-      let previousReceived = 0;
+        let previousReceived =
+          0;
 
-      let previousExpenses = 0;
+        let previousExpenses =
+          0;
 
-      let paidFlats = 0;
+        let paidFlats = 0;
 
-      let remarksTemp = [];
+        let remarksTemp =
+          [];
 
-      const previousMonth =
-        currentMonth === 1
-          ? 12
-          : currentMonth - 1;
+        const previousMonth =
+          currentMonth === 1
+            ? 12
+            : currentMonth - 1;
 
-      const previousYear =
-        currentMonth === 1
-          ? currentYear - 1
-          : currentYear;
+        const previousYear =
+          currentMonth === 1
+            ? currentYear - 1
+            : currentYear;
 
-      // RECEIVED DATA
+        // RECEIVED DATA
 
-      maintenanceSnapshot.forEach(
-        (doc) => {
+        maintenanceSnapshot.forEach(
+          (doc) => {
 
-          const item = {
-            id: doc.id,
-            ...doc.data(),
-          };
+            const item = {
+              id: doc.id,
+              ...doc.data(),
+            };
 
-          const amount =
-            Number(
-              item.maintenanceAmount
-            ) || 0;
+            const amount =
+              Number(
+                item.maintenanceAmount
+              ) || 0;
 
-          allReceived += amount;
-
-          if (item.billDate) {
-
-            const billDate =
-              new Date(
-                item.billDate
-              );
-
-            const billMonth =
-              billDate.getMonth() + 1;
-
-            const billYear =
-              billDate.getFullYear();
-
-            // CURRENT MONTH
+            allReceived +=
+              amount;
 
             if (
-              billMonth ===
-                currentMonth &&
-              billYear ===
-                currentYear
+              item.billDate
             ) {
 
-              currentReceived +=
-                amount;
+              const billDate =
+                new Date(
+                  item.billDate
+                );
 
-              if (amount > 0) {
+              const billMonth =
+                billDate.getMonth() + 1;
 
-                paidFlats++;
+              const billYear =
+                billDate.getFullYear();
+
+              // CURRENT MONTH
+
+              if (
+                billMonth ===
+                  currentMonth &&
+                billYear ===
+                  currentYear
+              ) {
+
+                currentReceived +=
+                  amount;
+
+                if (
+                  amount > 0
+                ) {
+
+                  paidFlats++;
+
+                }
+
+              }
+
+              // PREVIOUS MONTH
+
+              if (
+                billMonth ===
+                  previousMonth &&
+                billYear ===
+                  previousYear
+              ) {
+
+                previousReceived +=
+                  amount;
 
               }
 
             }
 
-            // PREVIOUS MONTH
+          }
+        );
+
+        // EXPENSES
+
+        expenseSnapshot.forEach(
+          (doc) => {
+
+            const item = {
+              id: doc.id,
+              ...doc.data(),
+            };
+
+            const amount =
+              Number(
+                item.maintenanceAmount
+              ) || 0;
+
+            allExpenses +=
+              amount;
 
             if (
-              billMonth ===
-                previousMonth &&
-              billYear ===
-                previousYear
+              item.billDate
             ) {
 
-              previousReceived +=
-                amount;
+              const billDate =
+                new Date(
+                  item.billDate
+                );
+
+              const billMonth =
+                billDate.getMonth() + 1;
+
+              const billYear =
+                billDate.getFullYear();
+
+              // CURRENT MONTH
+
+              if (
+                billMonth ===
+                  currentMonth &&
+                billYear ===
+                  currentYear
+              ) {
+
+                currentExpense +=
+                  amount;
+
+              }
+
+              // PREVIOUS MONTH
+
+              if (
+                billMonth ===
+                  previousMonth &&
+                billYear ===
+                  previousYear
+              ) {
+
+                previousExpenses +=
+                  amount;
+
+              }
 
             }
 
           }
+        );
 
-        }
-      );
+        // REMARKS
 
-      // EXPENSES
+        remarksSnapshot.forEach(
+          (doc) => {
 
-      expenseSnapshot.forEach(
-        (doc) => {
-
-          const item = {
-            id: doc.id,
-            ...doc.data(),
-          };
-
-          const amount =
-            Number(
-              item.maintenanceAmount
-            ) || 0;
-
-          allExpenses += amount;
-
-          if (item.billDate) {
-
-            const billDate =
-              new Date(
-                item.billDate
-              );
-
-            const billMonth =
-              billDate.getMonth() + 1;
-
-            const billYear =
-              billDate.getFullYear();
-
-            // CURRENT MONTH
+            const item = {
+              id: doc.id,
+              ...doc.data(),
+            };
 
             if (
-              billMonth ===
-                currentMonth &&
-              billYear ===
-                currentYear
+              item.billDate
             ) {
 
-              currentExpense +=
-                amount;
+              const billDate =
+                new Date(
+                  item.billDate
+                );
 
-            }
+              const billMonth =
+                billDate.getMonth() + 1;
 
-            // PREVIOUS MONTH
+              const billYear =
+                billDate.getFullYear();
 
-            if (
-              billMonth ===
-                previousMonth &&
-              billYear ===
-                previousYear
-            ) {
+              // CURRENT MONTH REMARKS
 
-              previousExpenses +=
-                amount;
+              if (
+                billMonth ===
+                  currentMonth &&
+                billYear ===
+                  currentYear
+              ) {
+
+                remarksTemp.push(
+                  item
+                );
+
+              }
 
             }
 
           }
+        );
 
-        }
-      );
+        // SET VALUES
 
-      // REMARKS
+        setCurrentMonthReceived(
+          currentReceived
+        );
 
-      remarksSnapshot.forEach(
-        (doc) => {
-
-          const item = {
-            id: doc.id,
-            ...doc.data(),
-          };
-
-          if (item.billDate) {
-
-            const billDate =
-              new Date(
-                item.billDate
-              );
-
-            const billMonth =
-              billDate.getMonth() + 1;
-
-            const billYear =
-              billDate.getFullYear();
-
-            // ONLY CURRENT MONTH REMARKS
-
-            if (
-              billMonth ===
-                currentMonth &&
-              billYear ===
-                currentYear
-            ) {
-
-              remarksTemp.push(item);
-
-            }
-
-          }
-
-        }
-      );
-
-      // SET VALUES
-
-      setCurrentMonthReceived(
-        currentReceived
-      );
-
-      setCurrentMonthExpenses(
-        currentExpense
-      );
-
-      setCurrentMonthBalance(
-        currentReceived -
+        setCurrentMonthExpenses(
           currentExpense
-      );
+        );
 
-      setPreviousMonthBalance(
-        previousReceived -
-          previousExpenses
-      );
+        setCurrentMonthBalance(
+          currentReceived -
+            currentExpense
+        );
 
-      setAllMonthsBalance(
-        allReceived -
-          allExpenses
-      );
+        setPreviousMonthBalance(
+          previousReceived -
+            previousExpenses
+        );
 
-      setCurrentMonthPaidFlats(
-        paidFlats
-      );
+        setAllMonthsBalance(
+          allReceived -
+            allExpenses
+        );
 
-      setRemarksData(
-        remarksTemp
-      );
+        setCurrentMonthPaidFlats(
+          paidFlats
+        );
 
-    } catch (error) {
+        setRemarksData(
+          remarksTemp
+        );
 
-      console.log(error);
+      } catch (error) {
 
-    }
+        console.log(
+          error
+        );
 
-  };
+      }
+
+    };
 
   useEffect(() => {
 
@@ -372,13 +420,27 @@ const Dashboard = () => {
 
     <div className="container mt-5 mb-5">
 
-      <div className="row g-4">
+      {/* ANIMATION STYLE */}
+
+      <style>
+        {
+          animationStyle
+        }
+      </style>
+
+      <div className="row g-4 dash">
 
         {/* PAID FLATS */}
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-white text-black">
+          <div
+            className="card border-0 shadow-lg rounded-4 p-4 bg-white text-black dashboard-card"
+            style={{
+              animationDelay:
+                "0.1s",
+            }}
+          >
 
             <div className="d-flex justify-content-between align-items-center">
 
@@ -404,7 +466,9 @@ const Dashboard = () => {
                   {" "}
                   /
                   {" "}
-                  {totalFlats}
+                  {
+                    totalFlats
+                  }
 
                 </h2>
 
@@ -413,7 +477,8 @@ const Dashboard = () => {
               <FaArrowRight
                 size={35}
                 style={{
-                  cursor: "pointer",
+                  cursor:
+                    "pointer",
                 }}
                 onClick={() =>
                   navigateMonth(
@@ -432,7 +497,13 @@ const Dashboard = () => {
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-success text-white">
+          <div
+            className="card border-0 shadow-lg rounded-4 p-4 bg-success text-white dashboard-card"
+            style={{
+              animationDelay:
+                "0.2s",
+            }}
+          >
 
             <div className="d-flex justify-content-between align-items-center">
 
@@ -464,7 +535,8 @@ const Dashboard = () => {
               <FaArrowRight
                 size={35}
                 style={{
-                  cursor: "pointer",
+                  cursor:
+                    "pointer",
                 }}
                 onClick={() =>
                   navigateMonth(
@@ -484,10 +556,12 @@ const Dashboard = () => {
         <div className="col-md-4">
 
           <div
-            className="card border-0 shadow-lg rounded-4 p-4 text-white"
+            className="card border-0 shadow-lg rounded-4 p-4 text-white dashboard-card"
             style={{
               background:
                 "rgb(221 58 196)",
+              animationDelay:
+                "0.3s",
             }}
           >
 
@@ -521,7 +595,8 @@ const Dashboard = () => {
               <FaArrowRight
                 size={35}
                 style={{
-                  cursor: "pointer",
+                  cursor:
+                    "pointer",
                 }}
                 onClick={() =>
                   navigateMonth(
@@ -540,7 +615,13 @@ const Dashboard = () => {
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-primary text-white">
+          <div
+            className="card border-0 shadow-lg rounded-4 p-4 bg-primary text-white dashboard-card"
+            style={{
+              animationDelay:
+                "0.4s",
+            }}
+          >
 
             <div className="d-flex justify-content-between align-items-center">
 
@@ -569,10 +650,6 @@ const Dashboard = () => {
 
               </div>
 
-              <FaArrowRight
-                size={35}
-              />
-
             </div>
 
           </div>
@@ -583,7 +660,13 @@ const Dashboard = () => {
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-warning text-dark">
+          <div
+            className="card border-0 shadow-lg rounded-4 p-4 bg-warning text-dark dashboard-card"
+            style={{
+              animationDelay:
+                "0.5s",
+            }}
+          >
 
             <div className="d-flex justify-content-between align-items-center">
 
@@ -606,10 +689,6 @@ const Dashboard = () => {
 
               </div>
 
-              <FaArrowRight
-                size={35}
-              />
-
             </div>
 
           </div>
@@ -620,7 +699,13 @@ const Dashboard = () => {
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-danger text-white">
+          <div
+            className="card border-0 shadow-lg rounded-4 p-4 bg-danger text-white dashboard-card"
+            style={{
+              animationDelay:
+                "0.6s",
+            }}
+          >
 
             <div className="d-flex justify-content-between align-items-center">
 
@@ -643,21 +728,25 @@ const Dashboard = () => {
 
               </div>
 
-              <FaArrowRight
-                size={35}
-              />
-
             </div>
 
           </div>
 
         </div>
 
-        {/* REMARKS COUNT BOX */}
+        {/* REMARKS */}
 
         <div className="col-md-4">
 
-          <div className="card border-0 shadow-lg rounded-4 p-4 bg-dark text-white">
+          <div
+            className="card border-0 shadow-lg rounded-4 p-4 text-white dashboard-card"
+            style={{
+              background:
+                "rgb(132 38 231)",
+              animationDelay:
+                "0.7s",
+            }}
+          >
 
             <div className="d-flex justify-content-between align-items-center mb-3">
 
@@ -676,7 +765,8 @@ const Dashboard = () => {
               <FaArrowRight
                 size={30}
                 style={{
-                  cursor: "pointer",
+                  cursor:
+                    "pointer",
                 }}
                 onClick={() =>
                   navigate(
@@ -688,7 +778,8 @@ const Dashboard = () => {
             </div>
 
             {
-              remarksData.length > 0 ? (
+              remarksData.length >
+              0 ? (
 
                 <div className="text-center">
 
@@ -699,12 +790,6 @@ const Dashboard = () => {
                     }
 
                   </h1>
-
-                  <h6 className="text-white">
-
-                    Remarks This Month
-
-                  </h6>
 
                 </div>
 

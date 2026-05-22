@@ -32,16 +32,39 @@ export const Remarks = () => {
       description: "",
     });
 
-  // REMARKS LIST
+  // REMARKS DATA
 
   const [
     remarksData,
     setRemarksData,
   ] = useState([]);
 
-  // HANDLE INPUTS
+  const [
+    filteredData,
+    setFilteredData,
+  ] = useState([]);
 
-  const handleChange = (e) => {
+  const [
+    selectedMonth,
+    setSelectedMonth,
+  ] = useState("");
+
+  // CURRENT DATE
+
+  const currentDate =
+    new Date();
+
+  const currentMonth =
+    currentDate.getMonth() + 1;
+
+  const currentYear =
+    currentDate.getFullYear();
+
+  // HANDLE INPUT
+
+  const handleChange = (
+    e
+  ) => {
 
     setFormData({
       ...formData,
@@ -121,15 +144,15 @@ export const Remarks = () => {
           }
         );
 
-        // SORT BY DATE DESC
+        // SORT FLAT NUMBER
 
         remarksTemp.sort(
           (a, b) =>
-            new Date(
-              b.billDate
+            Number(
+              a.flatNumber
             ) -
-            new Date(
-              a.billDate
+            Number(
+              b.flatNumber
             )
         );
 
@@ -137,11 +160,139 @@ export const Remarks = () => {
           remarksTemp
         );
 
+        // DEFAULT CURRENT MONTH DATA
+
+        const currentMonthData =
+          remarksTemp.filter(
+            (item) => {
+
+              if (
+                !item.billDate
+              )
+                return false;
+
+              const billDate =
+                new Date(
+                  item.billDate
+                );
+
+              return (
+                billDate.getMonth() + 1 ===
+                  currentMonth &&
+                billDate.getFullYear() ===
+                  currentYear
+              );
+
+            }
+          );
+
+        setFilteredData(
+          currentMonthData
+        );
+
       } catch (error) {
 
         console.log(error);
 
       }
+
+    };
+
+  // MONTH FILTER
+
+  const handleMonthChange =
+    (e) => {
+
+      const value =
+        e.target.value;
+
+      setSelectedMonth(
+        value
+      );
+
+      // CURRENT MONTH
+
+      if (!value) {
+
+        const currentMonthData =
+          remarksData.filter(
+            (item) => {
+
+              if (
+                !item.billDate
+              )
+                return false;
+
+              const billDate =
+                new Date(
+                  item.billDate
+                );
+
+              return (
+                billDate.getMonth() + 1 ===
+                  currentMonth &&
+                billDate.getFullYear() ===
+                  currentYear
+              );
+
+            }
+          );
+
+        setFilteredData(
+          currentMonthData
+        );
+
+        return;
+
+      }
+
+      // SELECTED MONTH
+
+      const [
+        year,
+        month,
+      ] = value.split("-");
+
+      const filtered =
+        remarksData.filter(
+          (item) => {
+
+            if (
+              !item.billDate
+            )
+              return false;
+
+            const billDate =
+              new Date(
+                item.billDate
+              );
+
+            const billMonth =
+              String(
+                billDate.getMonth() + 1
+              ).padStart(
+                2,
+                "0"
+              );
+
+            const billYear =
+              billDate
+                .getFullYear()
+                .toString();
+
+            return (
+              billMonth ===
+                month &&
+              billYear ===
+                year
+            );
+
+          }
+        );
+
+      setFilteredData(
+        filtered
+      );
 
     };
 
@@ -197,15 +348,10 @@ export const Remarks = () => {
 
           <div
             className="card p-4 shadow mb-5"
-            style={{
-              background:
-                "transparent",
-              border:
-                "1px solid #ffffff8c",
-            }}
+           
           >
 
-            <h3 className="text-center mb-4 text-white">
+            <h3 className="text-center mb-4 text-black">
 
               Add Remarks
 
@@ -217,7 +363,7 @@ export const Remarks = () => {
 
                 <div className="col-md-4 mb-3">
 
-                  <label className="text-white">
+                  <label className="text-black">
 
                     Flat Number
 
@@ -241,7 +387,7 @@ export const Remarks = () => {
 
                 <div className="col-md-4 mb-3">
 
-                  <label className="text-white">
+                  <label className="text-black">
 
                     Owner Name
 
@@ -265,7 +411,7 @@ export const Remarks = () => {
 
                 <div className="col-md-4 mb-3">
 
-                  <label className="text-white">
+                  <label className="text-black">
 
                     Remarks Date
 
@@ -288,7 +434,7 @@ export const Remarks = () => {
 
                 <div className="col-md-12 mb-3">
 
-                  <label className="text-white">
+                  <label className="text-black">
 
                     Enter Suggestions / Remarks
 
@@ -336,23 +482,39 @@ export const Remarks = () => {
 
           <div
             className="card shadow-lg border-0 rounded-4 p-4"
-            style={{
-              background:
-                "rgba(0,0,0,0.7)",
-            }}
+            
           >
 
-            <h3 className="text-white mb-4">
+            <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
 
-              Suggestions / Remarks List
+              <h3 className="text-black">
 
-            </h3>
+                Suggestions / Remarks List
+
+              </h3>
+
+              <div>
+
+                <input
+                  type="month"
+                  className="form-control"
+                  value={
+                    selectedMonth
+                  }
+                  onChange={
+                    handleMonthChange
+                  }
+                />
+
+              </div>
+
+            </div>
 
             <div className="table-responsive">
 
               <table className="table table-bordered table-hover text-center align-middle">
 
-                <thead className="table-dark">
+                <thead className="table-dark1">
 
                   <tr>
 
@@ -391,10 +553,10 @@ export const Remarks = () => {
                 <tbody>
 
                   {
-                    remarksData.length >
+                    filteredData.length >
                     0 ? (
 
-                      remarksData.map(
+                      filteredData.map(
                         (
                           item,
                           index
