@@ -112,3 +112,6 @@ span.badge {
     letter-spacing: 2px;
     margin-left: 5px;
 }
+.table-responsive.rem .table tr td button {
+    width: 115px;
+}
