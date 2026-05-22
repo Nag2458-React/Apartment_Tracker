@@ -795,7 +795,7 @@ const Dashboard = () => {
 
               ) : (
 
-                <h6 className="text-center text-danger">
+                <h6 className="text-center"  style={{color:"#ffc107"}}>
 
                   No Remarks Found
 
