@@ -9,6 +9,7 @@ import {
   getDocs,
   doc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 
 import { db } from "../Firebase";
@@ -331,6 +332,43 @@ export const Remarks = () => {
 
     };
 
+  // DELETE REMARK
+
+  const handleDelete =
+    async (id) => {
+
+      const confirmDelete =
+        window.confirm(
+          "Are you sure want to delete?"
+        );
+
+      if (!confirmDelete)
+        return;
+
+      try {
+
+        await deleteDoc(
+          doc(
+            db,
+            "remarks",
+            id
+          )
+        );
+
+        alert(
+          "Deleted Successfully"
+        );
+
+        fetchRemarks();
+
+      } catch (error) {
+
+        console.log(error);
+
+      }
+
+    };
+
   useEffect(() => {
 
     fetchRemarks();
@@ -348,7 +386,6 @@ export const Remarks = () => {
 
           <div
             className="card p-4 shadow mb-5"
-           
           >
 
             <h3 className="text-center mb-4 text-black">
@@ -450,7 +487,7 @@ export const Remarks = () => {
                     onChange={
                       handleChange
                     }
-                    placeholder="Enter Remarks"
+                    placeholder="Enter Any Issues Or Suggestions in the Apartment"
                     required
                   ></textarea>
 
@@ -482,7 +519,6 @@ export const Remarks = () => {
 
           <div
             className="card shadow-lg border-0 rounded-4 p-4"
-            
           >
 
             <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
@@ -510,7 +546,7 @@ export const Remarks = () => {
 
             </div>
 
-            <div className="table-responsive">
+            <div className="table-responsive rem">
 
               <table className="table table-bordered table-hover text-center align-middle">
 
@@ -629,42 +665,59 @@ export const Remarks = () => {
 
                             <td>
 
-                              {
-                                item.status ===
-                                "Pending" ? (
+                              <div className="d-flex justify-content-center gap-2 flex-wrap">
 
-                                  <button
-                                    className="btn btn-success btn-sm"
-                                    onClick={() =>
-                                      updateStatus(
-                                        item.id,
-                                        "Clear"
-                                      )
-                                    }
-                                  >
+                                {
+                                  item.status ===
+                                  "Pending" ? (
 
-                                    Mark Clear
+                                    <button
+                                      className="btn btn-success btn-sm"
+                                      onClick={() =>
+                                        updateStatus(
+                                          item.id,
+                                          "Clear"
+                                        )
+                                      }
+                                    >
 
-                                  </button>
+                                      Mark Clear
 
-                                ) : (
+                                    </button>
 
-                                  <button
-                                    className="btn btn-warning btn-sm"
-                                    onClick={() =>
-                                      updateStatus(
-                                        item.id,
-                                        "Pending"
-                                      )
-                                    }
-                                  >
+                                  ) : (
 
-                                    Mark Pending
+                                    <button
+                                      className="btn btn-warning btn-sm"
+                                      onClick={() =>
+                                        updateStatus(
+                                          item.id,
+                                          "Pending"
+                                        )
+                                      }
+                                    >
 
-                                  </button>
+                                      Mark Pending
 
-                                )
-                              }
+                                    </button>
+
+                                  )
+                                }
+
+                                <button
+                                  className="btn btn-danger btn-sm"
+                                  onClick={() =>
+                                    handleDelete(
+                                      item.id
+                                    )
+                                  }
+                                >
+
+                                  Delete
+
+                                </button>
+
+                              </div>
 
                             </td>
 

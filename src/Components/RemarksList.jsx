@@ -289,7 +289,7 @@ export const RemarksList = () => {
 
         {/* TABLE */}
 
-        <div className="table-responsive paid">
+        <div className="table-responsive rem">
 
           <table className="table table-bordered table-hover text-center table-striped align-middle">
 

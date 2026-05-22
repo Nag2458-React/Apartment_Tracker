@@ -16,6 +16,11 @@ import { db } from "../Firebase";
 
 import { toast } from "react-toastify";
 
+import {
+  FaEdit,
+  FaTrash,
+} from "react-icons/fa";
+
 const AddExpense = () => {
 
   const [form, setForm] =
@@ -48,6 +53,7 @@ const AddExpense = () => {
           id: doc.id,
           ...doc.data(),
         });
+
       });
 
       setData(temp);
@@ -55,6 +61,7 @@ const AddExpense = () => {
     } catch (error) {
 
       console.log(error);
+
     }
   };
 
@@ -71,6 +78,7 @@ const AddExpense = () => {
       [e.target.name]:
         e.target.value,
     });
+
   };
 
   const handleSubmit =
@@ -110,6 +118,7 @@ const AddExpense = () => {
           toast.success(
             "Expense Added"
           );
+
         }
 
         setForm({
@@ -130,14 +139,15 @@ const AddExpense = () => {
         if (modal) {
 
           modal.hide();
+
         }
 
       } catch (error) {
 
         console.log(error);
 
-       
       }
+
     };
 
   const handleDelete =
@@ -151,6 +161,7 @@ const AddExpense = () => {
       if (!confirmDelete) {
 
         return;
+
       }
 
       try {
@@ -172,7 +183,9 @@ const AddExpense = () => {
       } catch (error) {
 
         console.log(error);
+
       }
+
     };
 
   const handleEdit = (
@@ -182,7 +195,8 @@ const AddExpense = () => {
     setForm({
       billDate:
         item.billDate,
-      title: item.title,
+      title:
+        item.title,
       maintenanceAmount:
         item.maintenanceAmount,
     });
@@ -197,15 +211,21 @@ const AddExpense = () => {
       );
 
     modal.show();
+
   };
 
   return (
+
     <div className="container mt-5 mb-5">
+
+      {/* ADD FORM */}
 
       <div className="card shadow p-4">
 
         <h3 className="text-center mb-4 text-black">
+
           Add Expense
+
         </h3>
 
         <form
@@ -286,7 +306,9 @@ const AddExpense = () => {
               <div className="text-center">
 
                 <button className="btn btn-success px-5">
+
                   Submit
+
                 </button>
 
               </div>
@@ -299,24 +321,34 @@ const AddExpense = () => {
 
       </div>
 
+      {/* TABLE */}
+
       <div className="card shadow mt-5 p-4">
 
         <h4 className="mb-4">
+
           Expense List
+
         </h4>
 
-        <div className="table-responsive">
+        <div className="table-responsive exp">
 
           <table className="table table-bordered table-striped">
 
             <thead className="table-dark1">
 
               <tr>
+
                 <th>S.No</th>
+
                 <th>Date</th>
+
                 <th>Title</th>
+
                 <th>Amount</th>
+
                 <th>Actions</th>
+
               </tr>
 
             </thead>
@@ -356,42 +388,57 @@ const AddExpense = () => {
                           }
                         </td>
 
-                        <td>
+                        <td className="fw-bold text-danger">
+
                           ₹
                           {
                             item.maintenanceAmount
                           }
+
                         </td>
 
-                        <td>
+                        {/* ACTION ICONS */}
 
-                          <button
-                            className="btn btn-primary btn-sm me-2"
+                        <td className="text-center">
+
+                          <FaEdit
+                            className=" me-3"
+                            style={{
+                              cursor:
+                                "pointer",
+                              fontSize:
+                                "18px",
+                                color:"#29528d"
+                            }}
                             onClick={() =>
                               handleEdit(
                                 item
                               )
                             }
-                          >
-                            Edit
-                          </button>
+                          />
 
-                          <button
-                            className="btn btn-danger btn-sm"
+                          <FaTrash
+                            className="text-danger"
+                            style={{
+                              cursor:
+                                "pointer",
+                              fontSize:
+                                "18px",
+                            }}
                             onClick={() =>
                               handleDelete(
                                 item.id
                               )
                             }
-                          >
-                            Delete
-                          </button>
+                          />
 
                         </td>
 
                       </tr>
+
                     )
                   )
+
                 ) : (
 
                   <tr>
@@ -400,10 +447,13 @@ const AddExpense = () => {
                       colSpan="5"
                       className="text-center"
                     >
+
                       No Data Found
+
                     </td>
 
                   </tr>
+
                 )
               }
 
@@ -414,6 +464,8 @@ const AddExpense = () => {
         </div>
 
       </div>
+
+      {/* EDIT MODAL */}
 
       <div
         className="modal fade"
@@ -428,7 +480,9 @@ const AddExpense = () => {
             <div className="modal-header">
 
               <h5 className="modal-title">
+
                 Edit Expense
+
               </h5>
 
               <button
@@ -508,7 +562,9 @@ const AddExpense = () => {
                 </div>
 
                 <button className="btn btn-success w-100">
+
                   Update
+
                 </button>
 
               </form>
@@ -522,7 +578,9 @@ const AddExpense = () => {
       </div>
 
     </div>
+
   );
+
 };
 
 export default AddExpense;

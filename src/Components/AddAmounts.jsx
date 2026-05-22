@@ -16,6 +16,11 @@ import { db } from "../Firebase";
 
 import { toast } from "react-toastify";
 
+import {
+  FaEdit,
+  FaTrash,
+} from "react-icons/fa";
+
 const AddAmounts = () => {
 
   const [form, setForm] = useState({
@@ -137,6 +142,14 @@ const AddAmounts = () => {
             ...doc.data(),
           });
         }
+      );
+
+      // SORT FLAT NUMBERS
+
+      tempData.sort(
+        (a, b) =>
+          Number(a.flatNumber) -
+          Number(b.flatNumber)
       );
 
       setData(tempData);
@@ -389,7 +402,6 @@ const AddAmounts = () => {
 
       <div
         className="card p-4 shadow"
-     
       >
 
         <h3 className="text-center mb-4 text-black">
@@ -585,7 +597,7 @@ const AddAmounts = () => {
 
         {/* TABLE */}
 
-        <div className="table-responsive">
+        <div className="table-responsive paid">
 
           <table className="table table-bordered table-striped align-middle">
 
@@ -607,7 +619,9 @@ const AddAmounts = () => {
 
                 <th>Description</th>
 
-                <th>Actions</th>
+                <th className="text-center">
+                  Actions
+                </th>
 
               </tr>
 
@@ -720,10 +734,19 @@ const AddAmounts = () => {
                           }
                         </td>
 
-                        <td>
+                        {/* ICON ACTIONS */}
 
-                          <button
-                            className="btn btn-primary btn-sm me-2"
+                        <td className="text-center">
+
+                          <FaEdit
+                            size={20}
+                            color="#29528d"
+                            style={{
+                              cursor:
+                                "pointer",
+                              marginRight:
+                                "15px",
+                            }}
                             data-bs-toggle="modal"
                             data-bs-target="#editModal"
                             onClick={() =>
@@ -731,24 +754,21 @@ const AddAmounts = () => {
                                 item
                               )
                             }
-                          >
+                          />
 
-                            Edit
-
-                          </button>
-
-                          <button
-                            className="btn btn-danger btn-sm"
+                          <FaTrash
+                            size={20}
+                            color="#b70000"
+                            style={{
+                              cursor:
+                                "pointer",
+                            }}
                             onClick={() =>
                               handleDelete(
                                 item.id
                               )
                             }
-                          >
-
-                            Delete
-
-                          </button>
+                          />
 
                         </td>
 
