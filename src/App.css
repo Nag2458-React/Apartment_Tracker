@@ -65,6 +65,7 @@ form label{
     border-radius: 15px !important;
     padding: 10px 16px !important;
     border-bottom: 2px solid #fff !important;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px !important;
 }
 .footer.text-center {
     background: #393939;
