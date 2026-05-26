@@ -14,6 +14,12 @@ import {
 
 import { db } from "../Firebase";
 
+import * as XLSX from "xlsx";
+
+import {
+  FaFileExcel,
+} from "react-icons/fa";
+
 const ThisMonthExpenses = () => {
 
   const [expenseData, setExpenseData] =
@@ -48,8 +54,6 @@ const ThisMonthExpenses = () => {
     remainingBalance,
     setRemainingBalance,
   ] = useState(0);
-
-  // MOVE THIS HERE
 
   const navigate =
     useNavigate();
@@ -333,6 +337,70 @@ const ThisMonthExpenses = () => {
 
     };
 
+  // EXCEL DOWNLOAD
+
+  const downloadExcel =
+    () => {
+
+      if (
+        filteredExpenses.length === 0
+      ) {
+
+        alert(
+          "No Expense Data Found"
+        );
+
+        return;
+      }
+
+      const excelData =
+        filteredExpenses.map(
+          (
+            item,
+            index
+          ) => ({
+
+            "S.No":
+              index + 1,
+
+            "Date":
+              item.billDate,
+
+            "Expense Title":
+              item.title,
+
+            "Amount":
+              item.maintenanceAmount,
+
+          })
+        );
+
+      const worksheet =
+        XLSX.utils.json_to_sheet(
+          excelData
+        );
+
+      const workbook =
+        XLSX.utils.book_new();
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Expenses"
+      );
+
+      const fileName =
+        selectedMonth
+          ? `Expenses-${selectedMonth}.xlsx`
+          : "CurrentMonthExpenses.xlsx";
+
+      XLSX.writeFile(
+        workbook,
+        fileName
+      );
+
+    };
+
   return (
 
     <div className="container mt-5 mb-5 month">
@@ -378,6 +446,24 @@ const ThisMonthExpenses = () => {
 
               </div>
 
+              {/* EXCEL DOWNLOAD ICON */}
+
+              <button
+                className="btn btn-success"
+                onClick={
+                  downloadExcel
+                }
+                title="Download Excel"
+              >
+
+                <FaFileExcel
+                  size={22}
+                />
+
+              </button>
+
+              {/* BACK BUTTON */}
+
               <button
                 className="btn btn-dark"
                 onClick={() =>
@@ -394,93 +480,6 @@ const ThisMonthExpenses = () => {
             </div>
 
           </div>
-
-          {/* TOTALS */}
-
-          {/* <div className="row g-4 mb-4">
-
-            <div className="col-md-4">
-
-              <div className="card bg-danger text-white border-0 shadow">
-
-                <div className="card-body text-center">
-
-                  <h6>
-
-                    Total Expenses
-
-                  </h6>
-
-                  <h3>
-
-                    ₹
-                    {
-                      totalExpenses
-                    }
-
-                  </h3>
-
-                </div>
-
-              </div>
-
-            </div>
-
-            <div className="col-md-4">
-
-              <div className="card bg-success text-white border-0 shadow">
-
-                <div className="card-body text-center">
-
-                  <h6>
-
-                    Total Received
-
-                  </h6>
-
-                  <h3>
-
-                    ₹
-                    {
-                      totalReceived
-                    }
-
-                  </h3>
-
-                </div>
-
-              </div>
-
-            </div>
-
-            <div className="col-md-4">
-
-              <div className="card bg-primary text-white border-0 shadow">
-
-                <div className="card-body text-center">
-
-                  <h6>
-
-                    Remaining Balance
-
-                  </h6>
-
-                  <h3>
-
-                    ₹
-                    {
-                      remainingBalance
-                    }
-
-                  </h3>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div> */}
 
           {/* TABLE */}
 
@@ -587,6 +586,60 @@ const ThisMonthExpenses = () => {
                 }
 
               </tbody>
+
+              {/* FOOTER */}
+
+              <tfoot className="table-dark1">
+
+                <tr>
+
+                  <th
+                    colSpan="2"
+                    className="text-center text-danger"
+                  >
+
+                    Total Expenses :
+                    {" "}
+                    ₹
+                    {
+                      totalExpenses
+                    }
+
+                  </th>
+
+                  <th
+                    className="text-center text-success"
+                  >
+
+                    Total Received :
+                    {" "}
+                    ₹
+                    {
+                      totalReceived
+                    }
+
+                  </th>
+
+                  <th
+                    className={`text-center fw-bold ${
+                      remainingBalance >= 0
+                        ? "text-primary"
+                        : "text-danger"
+                    }`}
+                  >
+
+                    Balance :
+                    {" "}
+                    ₹
+                    {
+                      remainingBalance
+                    }
+
+                  </th>
+
+                </tr>
+
+              </tfoot>
 
             </table>
 

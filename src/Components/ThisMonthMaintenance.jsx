@@ -14,6 +14,12 @@ import {
 
 import { db } from "../Firebase";
 
+import * as XLSX from "xlsx";
+
+import {
+  FaFileExcel,
+} from "react-icons/fa";
+
 const ThisMonthMaintenance = () => {
 
   const [data, setData] =
@@ -176,6 +182,81 @@ const ThisMonthMaintenance = () => {
 
     };
 
+  // DOWNLOAD EXCEL
+
+  const downloadExcel =
+    () => {
+
+      if (
+        data.length === 0
+      ) {
+
+        alert(
+          "No Data Found"
+        );
+
+        return;
+
+      }
+
+      const excelData =
+        data.map(
+          (
+            item,
+            index
+          ) => ({
+
+            "S.No":
+              index + 1,
+
+            "Flat No":
+              item.flatNumber,
+
+            "Owner Name":
+              item.ownerName,
+
+            "Bill Date":
+              item.billDate,
+
+            Maintenance:
+              item.maintenanceAmount,
+
+            Status:
+              Number(
+                item.maintenanceAmount
+              ) > 0
+                ? "Paid"
+                : "Pending",
+
+          })
+        );
+
+      const worksheet =
+        XLSX.utils.json_to_sheet(
+          excelData
+        );
+
+      const workbook =
+        XLSX.utils.book_new();
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Maintenance Data"
+      );
+
+      const fileName =
+        selectedMonth
+          ? `Maintenance-${selectedMonth}.xlsx`
+          : "CurrentMonthMaintenance.xlsx";
+
+      XLSX.writeFile(
+        workbook,
+        fileName
+      );
+
+    };
+
   // TOTALS
 
   const totalMaintenance =
@@ -267,9 +348,9 @@ const ThisMonthMaintenance = () => {
 
         </div>
 
-        {/* MONTH PICKER */}
+        {/* MONTH PICKER + EXCEL */}
 
-        <div className="row mb-4">
+        <div className="row mb-4 align-items-end">
 
           <div className="col-md-4">
 
@@ -289,6 +370,22 @@ const ThisMonthMaintenance = () => {
                 handleMonthChange
               }
             />
+
+          </div>
+
+          <div className="col-md-8 text-md-end mt-3 mt-md-0">
+
+            <button
+              className="btn btn-success"
+              onClick={
+                downloadExcel
+              }
+              title="Download Excel"
+            >
+
+              <FaFileExcel size={22} />
+
+            </button>
 
           </div>
 

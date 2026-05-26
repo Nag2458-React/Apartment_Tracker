@@ -14,6 +14,12 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import * as XLSX from "xlsx";
+
+import {
+  FaFileExcel,
+} from "react-icons/fa";
+
 const ThisMonthPaidFlats = () => {
 
   const navigate =
@@ -214,6 +220,80 @@ const ThisMonthPaidFlats = () => {
 
     };
 
+  // EXCEL DOWNLOAD
+
+  const downloadExcel =
+    () => {
+
+      if (
+        filteredData.length === 0
+      ) {
+
+        alert(
+          "No Data Found"
+        );
+
+        return;
+      }
+
+      const excelData =
+        filteredData.map(
+          (
+            item,
+            index
+          ) => ({
+
+            "S.No":
+              index + 1,
+
+            "Flat Number":
+              item.flatNumber,
+
+            "Owner Name":
+              item.ownerName,
+
+            "Bill Date":
+              item.billDate,
+
+            "Maintenance Amount":
+              item.maintenanceAmount,
+
+            Status:
+              Number(
+                item.maintenanceAmount
+              ) > 0
+                ? "Paid"
+                : "Pending",
+
+          })
+        );
+
+      const worksheet =
+        XLSX.utils.json_to_sheet(
+          excelData
+        );
+
+      const workbook =
+        XLSX.utils.book_new();
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Paid Flats"
+      );
+
+      const fileName =
+        selectedMonth
+          ? `PaidFlats-${selectedMonth}.xlsx`
+          : "CurrentMonthPaidFlats.xlsx";
+
+      XLSX.writeFile(
+        workbook,
+        fileName
+      );
+
+    };
+
   // TOTALS
 
   const totalPaidAmount =
@@ -295,11 +375,11 @@ const ThisMonthPaidFlats = () => {
 
         </div>
 
-        {/* MONTH PICKER */}
+        {/* MONTH PICKER + EXCEL ICON */}
 
-        <div className="row mb-4">
+        <div className="row mb-4 align-items-end">
 
-          <div className="col-md-4">
+          <div className="col-md-4 mb-3">
 
             <label className="fw-bold mb-2 text-black">
 
@@ -317,6 +397,24 @@ const ThisMonthPaidFlats = () => {
                 handleMonthChange
               }
             />
+
+          </div>
+
+          <div className="col-md-8 text-md-end mb-3">
+
+            <button
+              className="btn btn-success"
+              onClick={
+                downloadExcel
+              }
+              title="Download Excel"
+            >
+
+              <FaFileExcel
+                size={22}
+              />
+
+            </button>
 
           </div>
 
